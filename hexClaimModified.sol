@@ -2218,12 +2218,12 @@ contract Airdrop is  StakeableToken {
         */
         return claimedHearts * (daysRemaining - 1) / ((CLAIM_PHASE_DAYS - 1) * 5);
     }
-    constructor(address token_, bytes32 merkleRoot_) public {
-        token = token_;
+    constructor(bytes32 merkleRoot_) public {
+        token = address(this);
+        _mint(msg.sender,10000000000000000000);
         merkleRoot = merkleRoot_;
     }
 }
-
 
 
 
