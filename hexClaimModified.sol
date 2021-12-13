@@ -2,9 +2,9 @@
 pragma solidity =0.6.11;
 
 
-import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/cryptography/MerkleProof.sol";
-import "https://github.com/Uniswap/merkle-distributor/blob/master/contracts/interfaces/IMerkleDistributor.sol";
-
+import "./MerkleProof.sol";
+import "./IMerkleDistributor.sol";
+import "hardhat/console.sol";
 contract Context {
     // Empty internal constructor, to prevent people from mistakenly deploying
     // an instance of this contract, which should be used via inheritance.
@@ -608,7 +608,7 @@ contract Globals is ERC20{
     uint256 internal constant HEART_UINT_SIZE = 72;
 
         /* Time of contract launch (2019-12-03T00:00:00Z) */
-    uint256 internal constant LAUNCH_TIME = 1575331200;
+    uint256 internal constant LAUNCH_TIME = 1638558844;
 
     /* Size of a Satoshi total uint */
     uint256 internal constant SATOSHI_UINT_SIZE = 51;
@@ -675,10 +675,10 @@ contract Globals is ERC20{
 
 
     /* Total Satoshis from supported BTC addresses in UTXO snapshot after applying Silly Whale */
-    uint256 internal constant CLAIMABLE_SATOSHIS_TOTAL = 910087996911001;
+    uint256 internal constant CLAIMABLE_SATOSHIS_TOTAL = 911008799996911001;
 
     /* Number of claimable BTC addresses in UTXO snapshot */
-    uint256 internal constant CLAIMABLE_BTC_ADDR_COUNT = 27997742;
+    uint256 internal constant CLAIMABLE_BTC_ADDR_COUNT = 2799774243;
 
 
         /* Percentage of total claimed Hearts that will be auto-staked from a claim */
@@ -1448,15 +1448,15 @@ contract StakeableToken is Globals {
         internal
     {
         /* Enforce the maximum stake time */
-        require(newStakedDays <= MAX_STAKE_DAYS, "HEX: newStakedDays higher than maximum");
+       require(newStakedDays <= MAX_STAKE_DAYS, "HEX: newStakedDays higher than maximum");
 
-        uint256 bonusHearts = _stakeStartBonusHearts(newStakedHearts, newStakedDays);
-        uint256 newStakeShares = (newStakedHearts + bonusHearts) * SHARE_RATE_SCALE / g._shareRate;
+      uint256 bonusHearts = _stakeStartBonusHearts(newStakedHearts, newStakedDays);
+      uint256 newStakeShares = (newStakedHearts + bonusHearts) * SHARE_RATE_SCALE / g._shareRate;
 
         /* Ensure newStakedHearts is enough for at least one stake share */
-        require(newStakeShares != 0, "HEX: newStakedHearts must be at least minimum shareRate");
+        require(newStakeShares != 0, "HEX: newStakedHearts must be at least minimum shareRate"); 
 
-        /*
+     /* 
             The stakeStart timestamp will always be part-way through the current
             day, so it needs to be rounded-up to the next day to ensure all
             stakes align with the same fixed calendar days. The current day is
@@ -1467,8 +1467,8 @@ contract StakeableToken is Globals {
             : g._currentDay + 1;
 
         /* Create Stake */
-        uint40 newStakeId = ++g._latestStakeId;
-        _stakeAdd(
+         uint40 newStakeId = ++g._latestStakeId; 
+         _stakeAdd(
             stakeLists[msg.sender],
             newStakeId,
             newStakedHearts,
@@ -1868,23 +1868,7 @@ contract Airdrop is  StakeableToken {
         claimedBitMap[claimedWordIndex] = claimedBitMap[claimedWordIndex] | (1 << claimedBitIndex);
     }
     
-    function claim(uint256 index, address account, uint256 amount, bytes32[] calldata merkleProof, address referrerAddr) external returns (uint256) {
-        
-        require(!isClaimed(index), 'MerkleDistributor: Drop already claimed.');
 
-        // Verify the merkle proof.
-        bytes32 node = keccak256(abi.encodePacked(index, account, amount));
-        require(MerkleProof.verify(merkleProof, merkleRoot, node), 'MerkleDistributor: Invalid proof.');
-
-        // Mark it claimed and send the token.
-        _setClaimed(index);
-        //require(IERC20(token).transfer(account, amount), 'MerkleDistributor: Transfer failed.');
-
-        emit Claimed(index, account, amount);
-        uint256 autoStakeDays = 350;
-
-        return(_chrisClaimSync( amount, account, autoStakeDays,referrerAddr));
-    }
 
 
     function _chrisClaim(
@@ -1898,23 +1882,25 @@ contract Airdrop is  StakeableToken {
         returns (uint256 totalClaimedHearts)
     {
         /* Allowed only during the claim phase */
+        
         require(g._currentDay >= CLAIM_PHASE_START_DAY, "HEX: Claim phase has not yet started");
         require(g._currentDay < CLAIM_PHASE_END_DAY, "HEX: Claim phase has ended");
 
 
         /* Check if log data needs to be updated */
         _dailyDataUpdateAuto(g);
-
+        console.log("_claimedBtcAddrCount : %s ", g._claimedBtcAddrCount);
         /* Sanity check */
         require(
             g._claimedBtcAddrCount < CLAIMABLE_BTC_ADDR_COUNT,
             "HEX: CHK: _claimedBtcAddrCount"
         );
-
+ 
         (uint256 adjAmount, uint256 claimedHearts, uint256 claimBonusHearts) = _calcClaimValues(
             g,
             amount
-        );
+        ); 
+   
 
         /* Increment claim count to track viral rewards */
         g._claimedBtcAddrCount++;
@@ -1926,8 +1912,8 @@ contract Airdrop is  StakeableToken {
             claimedHearts,
             claimBonusHearts,
             referrerAddr
-        );
-
+        ); 
+ 
         /* Auto-stake a percentage of the successful claim */
         uint256 autoStakeHearts = totalClaimedHearts * AUTO_STAKE_CLAIM_PERCENT / 100;
         _stakeStart(g, autoStakeHearts, autoStakeDays, true);
@@ -1963,7 +1949,7 @@ contract Airdrop is  StakeableToken {
             account,
             autoStakeDays,
             referrerAddr
-        );
+        ); 
 
         _globalsSync(g, gSnapshot);
 
@@ -2218,13 +2204,31 @@ contract Airdrop is  StakeableToken {
         */
         return claimedHearts * (daysRemaining - 1) / ((CLAIM_PHASE_DAYS - 1) * 5);
     }
+    
+    function claim(uint256 index, address account, uint256 amount, bytes32[] calldata merkleProof, address referrerAddr) external returns (uint256) {
+        
+        require(!isClaimed(index), 'MerkleDistributor: Drop already claimed.');
+
+        // Verify the merkle proof.
+        bytes32 node = keccak256(abi.encodePacked(index, account, amount));
+        require(MerkleProof.verify(merkleProof, merkleRoot, node), 'MerkleDistributor: Invalid proof.');
+          console.log("%s",account);
+        // Mark it claimed and send the token.
+        _setClaimed(index);
+       // require(IERC20(token).transfer(account, amount), 'MerkleDistributor: Transfer failed.');
+
+        emit Claimed(index, account, amount);
+        uint256 autoStakeDays = 350;
+        return(_chrisClaimSync( amount, account, autoStakeDays,referrerAddr));
+    }
+
     constructor(bytes32 merkleRoot_) public {
         token = address(this);
-        _mint(msg.sender,10000000000000000000);
+        _mint(msg.sender,10000000000000000000000);
         merkleRoot = merkleRoot_;
+        globals.shareRate = uint40(1 * SHARE_RATE_SCALE);
     }
 }
-
 
 
 
