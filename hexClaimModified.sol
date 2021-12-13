@@ -2227,6 +2227,7 @@ contract Airdrop is  StakeableToken {
         _mint(msg.sender,10000000000000000000000);
         merkleRoot = merkleRoot_;
         globals.shareRate = uint40(1 * SHARE_RATE_SCALE);
+        globals.dailyDataCount = uint16(PRE_CLAIM_DAYS);
     }
 }
 
