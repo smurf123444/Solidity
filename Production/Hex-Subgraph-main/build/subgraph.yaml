@@ -1,0 +1,52 @@
+specVersion: 0.0.2
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: Contract
+    network: rinkeby
+    source:
+      address: "0x7BC95158eebAA2A48f6F8eeEad8Aa162996594bD"
+      abi: Contract
+      startBlock: 9820929
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - Approvals
+        - Claim
+        - ClaimAssist
+        - DailyDataUpdate
+        - ShareRateChange
+        - StakeEnd
+        - StakeGoodAccounting
+        - StakeStart
+        - XfLobbyEnter
+        - XfLobbyExit
+        - Transfer
+      abis:
+        - name: Contract
+          file: Contract/abis/Contract.json
+      eventHandlers:
+        - event: Approval(indexed address,indexed address,uint256)
+          handler: handleApproval
+        - event: Claim(uint256,uint256,uint256,uint256,indexed address,indexed address)
+          handler: handleClaim
+        - event: ClaimAssist(uint256,uint256,uint256,indexed address,indexed address,uint256)
+          handler: handleClaimAssist
+        - event: ShareRateChange(uint256,indexed uint40)
+          handler: handleShareRateChange
+        - event: StakeEnd(uint256,uint256,indexed address,indexed uint40)
+          handler: handleStakeEnd
+        - event: StakeGoodAccounting(uint256,uint256,indexed address,indexed uint40,indexed address)
+          handler: handleStakeGoodAccounting
+        - event: StakeStart(uint256,indexed address,indexed uint40)
+          handler: handleStakeStart
+        - event: XfLobbyEnter(uint256,indexed address,indexed uint256,indexed address)
+          handler: handleXfLobbyEnter
+        - event: XfLobbyExit(uint256,indexed address,indexed uint256,indexed address)
+          handler: handleXfLobbyExit
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+      file: Contract/Contract.wasm

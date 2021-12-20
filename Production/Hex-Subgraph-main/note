@@ -1,0 +1,4 @@
+        - event: XfLobbyEnter(uint256,indexed address,indexed uint256,indexed address)
+          handler: handleXfLobbyEnter
+        - event: XfLobbyExit(uint256,indexed address,indexed uint256,indexed address)
+          handler: handleXfLobbyExit
