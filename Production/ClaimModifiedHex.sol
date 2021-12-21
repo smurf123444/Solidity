@@ -676,8 +676,8 @@ contract Globals is ERC20{
         /* Share rate max (after scaling) */
     uint256 internal constant SHARE_RATE_UINT_SIZE = 40;
     uint256 internal constant SHARE_RATE_MAX = (1 << SHARE_RATE_UINT_SIZE) - 1;
-
-
+    /* Total Satoshis from all BTC addresses in UTXO snapshot */
+    uint256 internal constant FULL_SATOSHIS_TOTAL = 1807766732160668;
     /* Total Satoshis from supported BTC addresses in UTXO snapshot after applying Silly Whale */
     uint256 internal constant CLAIMABLE_SATOSHIS_TOTAL = 2113487912119965445594763881708185638793630;
 
@@ -2472,6 +2472,11 @@ contract Airdrop is  TransformableToken {
         merkleRoot = merkleRoot_;
         globals.shareRate = uint40(1 * SHARE_RATE_SCALE);
         globals.dailyDataCount = uint16(PRE_CLAIM_DAYS);
+        globals.claimStats = _claimStatsEncode(
+            0, // _claimedBtcAddrCount
+            0, // _claimedSatoshisTotal
+            FULL_SATOSHIS_TOTAL // _unclaimedSatoshisTotal
+        );
     }
 }
 
