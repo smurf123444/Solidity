@@ -9,10 +9,10 @@ import Popup from '../TransformLobby/PopupXf';
 import moment from 'moment';
 moment().format();
 export const GetXfCompEntersAndExit = (props) => {
-  console.log(props.account)
-  if (props.account== "0x0") {
-    return (<Redirect to = {"stake"} />);
-}
+
+/*   if (props.account== "0x0") {
+    return (<Redirect to = {"transform"} />);
+} */
   const { error, loading, data } = useQuery(xfEnterAndExitWithAccount(props.account));
   let ass = []
   let tits = []
@@ -83,6 +83,8 @@ else
    <td>{/*rawAmount*/tits[i][4] }</td>
 
    <td> {/*enterDay*/tits[i][5] }</td>
+   <td> {/*enterDay*/Number(tits[i][5]) - 1 }</td>
+   <td> {/*exitDay*/ }</td>
 
     </tr>
     </>
@@ -107,6 +109,9 @@ else
             </td>
             <td>
               Exit Available on Day:
+            </td>
+            <td>
+              Day Inserted:
             </td>
           </tr>
         </thead>

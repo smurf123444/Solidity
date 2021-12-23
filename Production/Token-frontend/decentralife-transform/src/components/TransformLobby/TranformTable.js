@@ -293,7 +293,7 @@ class TransformTable extends Component {
 
                         <td>
                       
-                        {yourButtoncalc(this.props.closing, this.xfLobbyExit,this.props.yourExitButton,this.props.yourEnterButton, this.props.xfLobbyEnter)}
+                        {yourButtoncalc(this.xfLobbyExit,this.props.yourExitButton,this.props.yourEnterButton, this.props.xfLobbyEnter)}
 
 </td>
 

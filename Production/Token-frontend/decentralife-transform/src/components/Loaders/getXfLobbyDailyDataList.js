@@ -125,14 +125,13 @@ while (i < tits.length)
    <td> {/*lobbyHexAvailable*/BigNumber(parseInt(tits[i][5])).div(10000000).toString() }</td>
    <td> {/*shares*/tits[i][6] }</td>
    <td> {/*payout*/BigNumber(parseInt(tits[i][7])).div(10000000).toString() }</td>
-   
     </tr>
     </>
    )
 i++
-console.log(i)
+//console.log(i)
 }
- console.log(tits.length)
+ //console.log(tits.length)
 s=0
 
 

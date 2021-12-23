@@ -9,10 +9,10 @@ import TransformTable from './Loaders/getXfLobbyTable'
 import GetXfLobbyDailyDataList from './Loaders/getXfLobbyDailyDataList'
 import GetAccountDailyDataGraph from './Loaders/getAccountDailyPayoutGraph'
 import GetPayoutDailyDataGraph from './Loaders/getDailyPayoutPerTShareGraph'
-import GetStakeEnd from './Loaders/getStakeEnd'
+
 import { PieChart } from 'react-minimal-pie-chart';
 import { Button, Navbar, Nav, NavDropdown, Image, FormControl, Card, CardColumns, CardGroup, Row, Container, Col, Modal} from 'react-bootstrap';
-import GetStakeCompStartAndEnd from './Loaders/getStakeCompStartAndEnd'
+
 import Table from 'react-bootstrap/Table';
 import Plot from 'react-plotly.js';
 import {
@@ -46,7 +46,7 @@ import './App.css'
 import Logo from '../dai.png'
 import PopupXf from './TransformLobby/PopupXf';
 import Wallet from './metamask'
-import PopupStakeEnd from './Loaders/PopupStakeEnd.js'
+
 import { xfLobbyDailyData } from './Querys/Queries';
 import "./style.scss";
 const MetaMaskOnboarding = require('@metamask/onboarding');
@@ -207,22 +207,21 @@ class App extends Component {
 
  // Load State Variables.
       let personalBalance = await tokenFarm.methods.balanceOf(this.state.account).call()
-     
+      console.log(personalBalance)
+      this.setState({dappTokenBalance: (personalBalance / 100000000 )})
       let totalSupply_ = await tokenFarm.methods.totalSupply().call()
       let day = await tokenFarm.methods.currentDay().call()
     //  console.log(day)
       this.setState({ currentDay: day})
       let globals_ = await tokenFarm.methods.globals().call()
-      let yourAddress_ = accounts[0]
-      let burned = await tokenFarm.methods.burnInfo(accounts[0]).call()
-      //console.log(burned)
-  
       this.setState({globals: globals_})
+      let yourAddress_ = accounts[0]
       this.setState({ account: yourAddress_.toString()})
-      this.setState({ dappTokenBalance:  (personalBalance / 100000000).toString()})
+
+     
+      this.setState({ dappTokenBalance:  (personalBalance / 100000000)})
       //this.setState({ currentDay:  day.toString()})
       this.setState({ yourAddress:  yourAddress_.toString()})
-      this.setState({ burned: (burned[1] / 100000000).toString() })
       this.setState({ totalSupply: totalSupply_.toString()})
       this.setState({ shareRate: globals_.shareRate.toString()})
       this.setState({ lockedHearts: globals_.lockedHeartsTotal.toString()})
@@ -332,7 +331,7 @@ i = 351
     
    
 //Check each day for for total Eth spent on that day.
-     while (i >= 1)
+/*       while (i >= 1)
      {
       if(currentReversed === i)
       {
@@ -343,7 +342,7 @@ i = 351
         checkCurrentDay[349 - i + 1] = false
       }
     //    xfLobbyMembersRead  = await tokenFarm.methods.xfLobbyMembers(i, this.state.account).call()
-    //    totalEthByDay[i] = await tokenFarm.methods.xfLobby(i).call()
+        totalEthByDay[i] = await tokenFarm.methods.xfLobby(i).call()
        if(totalEthByDay[i] > 0){
          tempValue = parseInt(hexAvailableArray[351 - i]) * totalEthByDay[i]
          hexToEth[i] = hexAvailableArray[351 - i] - (parseInt(hexAvailableArray[351 - i]) * Web3.utils.fromWei(totalEthByDay[i], "Ether"))
@@ -356,13 +355,13 @@ i = 351
        }
       xfLobbyMembersRead[i]  = await tokenFarm.methods.xfLobbyMembers(i, this.state.account).call()
 
-       console.log(xfLobbyMembersRead[i])
+      console.log(xfLobbyMembersRead[i])
        if(xfLobbyMembersRead[i][1] > 0){
          checkTotalEthByDay[351 - i + 1] = true
        }
        else{
         checkTotalEthByDay[351 - i + 1] = false
-       }
+       } 
      
     //  console.log(personalEthByDay)
        if(yourEth[i] > 0){
@@ -377,7 +376,7 @@ i = 351
        }
        this.setState({progressValue: progressValue++})
        i--
-     }
+     }  */
 
   }
 
@@ -395,21 +394,7 @@ i = 351
       }
 
 
-  stakeTokens = (amount, day) => {
-    //    this.state.tokenFarm.methods.approve(this.state.tokenFarm._address, amount).send({ from: this.state.account }).on('transactionHash', (hash) => {
-          this.state.tokenFarm.methods.stakeStart(amount, day).send({ from: this.state.account }).on('transactionHash', (hash) => {
-            this.setState({ loading: false })
-          })
-     //   })
-      }
 
-
-  unstakeTokens = (stakeIDparam, stakeID) => {
-   // console.log('stakeIdparam',stakeIDparam,'stakeId',stakeID)
-    this.state.tokenFarm.methods.stakeEnd(stakeIDparam, stakeID).send({ from: this.state.account }).on('transactionHash', (hash) => {
-      this.setState({ loading: false })
-    })
-  }
 //!!!!!!
   exitDay = (day) => {
     let s = 351 - day + 1;
@@ -424,7 +409,7 @@ i = 351
     this.state.tokenFarm.methods.xfLobbyEnter(this.state.account).send({ from: this.state.account, value: value}).on('transactionHash', (hash) => {
       this.setState({ loading: false })
     })
-  }
+  } 
 
   stakeCount = () => {
     this.state.tokenFarm.methods.stakeCount(this.state.account).send({ from: this.state.account}).on('transactionHash', (hash) => {
@@ -439,7 +424,7 @@ i = 351
 
   render() {
     
-    const { account, dappToken, progressValue, burned, currentDay, shareRate, globals, totalEthByDay, lockedHearts, dailyDataUpdate, totalEthXL, hexToEth, yourHex, yourEth, yourExitButton, yourAddress, yourEnterButton, totalSupply, initSupply, xfLobbyMembers, loading} = this.state;
+    const { account, dappToken, progressValue, currentDay, shareRate, globals, totalEthByDay, lockedHearts, dailyDataUpdate, totalEthXL, hexToEth, yourHex, yourEth, yourExitButton, yourAddress, yourEnterButton, totalSupply, initSupply, xfLobbyMembers, loading} = this.state;
 
     let initSupply_ = Web3.utils.fromWei(initSupply, "Gwei")
     let totalSupply_ = Web3.utils.fromWei(totalSupply, "Gwei")
@@ -510,7 +495,9 @@ const client = new ApolloClient({
       transform = <Transform 
       account={this.state.account}
       day={this.state.currentDay}
-      
+      balance={this.state.dappTokenBalance}
+      enterDay = {this.enterDay}
+      loading={this.state.loading}
       
       />
     }
@@ -546,29 +533,6 @@ const client = new ApolloClient({
       </ApolloProvider>
     }
 
-
-
-    let stakeComp
-    if(!this.state.loading) {
-      stakeComp = <p id="loader" className="text-center">Loading...</p>
-    } else {
-      stakeComp =
-      <ApolloProvider client={client}>
-        {this.state.showPopup?<PopupStakeEnd  text='X' closePopup={this.togglePopup.bind(this)} func={this.unstakeTokens} stakeIndex={this.state.input1} stakeID={this.state.input2}/>:null}
-        <GetStakeCompStartAndEnd account={this.state.account} func={this.getPopup} func2={this.unstakeTokens} />
-      </ApolloProvider>
-    }
-
-
-    let stakeEnds
-    if(!this.state.loading) {
-      stakeEnds = <p id="loader" className="text-center">Loading...</p>
-    } else {
-      stakeEnds =
-      <ApolloProvider client={client}>
-        <GetStakeEnd account={this.state.account}/>
-      </ApolloProvider>
-    }
 
   
     let dailyDataList
@@ -611,7 +575,7 @@ const client = new ApolloClient({
     } else {
       xfTable =
       <ApolloProvider client={client}>
-      {this.state.showPopup?<PopupStakeEnd  text='X' closePopup={this.togglePopup.bind(this)} func={this.unstakeTokens} stakeIndex={this.state.input1} stakeID={this.state.input2}/>:null}
+      
         <TransformTable
         
         func={this.enterDay}
@@ -625,170 +589,7 @@ const client = new ApolloClient({
     }
 
  
-  if(progressValue < 0) {
-    return (
-      <div>
-        
-      <Navbar  bg="dark" variant="dark">
-  <Navbar.Brand href="#home">Decentralife</Navbar.Brand>
-  <Navbar.Toggle aria-controls="basic-navbar-nav" />
-  <Navbar.Collapse id="basic-navbar-nav">
-    <Nav className="mr-auto">
-    <Nav.Link as={Link} to="/" >Home</Nav.Link>
-      <Nav.Link href="https://decentralife.medium.com/decentralife-token-846cfd424901">Info</Nav.Link>
-
-      <NavDropdown title="Solutions" id="basic-nav-dropdown">
-        <NavDropdown.Item as={Link} to="/stake">Stake</NavDropdown.Item>
-        <NavDropdown.Item as={Link} to="/transform">Transform</NavDropdown.Item>
-        <NavDropdown.Item as={Link} to="/transfer">Transfer</NavDropdown.Item>
-        <NavDropdown.Divider />
-        <NavDropdown.Item href="#action/3.4">Trade</NavDropdown.Item>
-      </NavDropdown>
-    </Nav>
-    <Nav>
-    <Nav.Link href="#RINKEBY4">RINKEBY TESTNET</Nav.Link>
-    <Nav.Link href="#Day">Day : {this.state.currentDay}</Nav.Link>
-    <Nav.Link href="#deets"> <Wallet /></Nav.Link>
-    </Nav>
-  </Navbar.Collapse>
-</Navbar>
-<center>
-                <progress value={progressValue} max="351" />
-      </center>
-<Switch>
-<Route path="/" exact>
-          
-          <Container>
-  <Row xs={2} md={4} lg={6}>
-
-  <Image src="https://i.imgur.com/UoMFVsj.jpg" fluid />
- 
-  </Row>
-  <Row xs={1} md={2}>
-    <Col>    <div style={{color:"white"}}>
-            <h1 >Welcome to Decentralife</h1>
-             <p>Certificate of Deposit on the Blockchain.</p>
-            </div></Col>
-            <Col> <h1><Wallet /></h1></Col>
-    
-  </Row>
-  <Card>
-
-<div className="footer">
-    <p>Decentralife Token </p>
-    <p><a href="https://kovan.etherscan.io/address/0x4587d1bcd8ec397a473d4ae31f5862705ba67f7d">Etherscan</a></p>
-  </div>
-
-</Card>
-</Container>
-          </Route>
-          <Route path="/transform">
-{transform}
-          {/* {dailyDataGraph} */}
-       {/*    {accountDailyDataGraph} */}
-            <center>
-            <h1 style={{color: "white"}}>
-              Loading, Please Wait...
-              </h1>
-              </center></Route>
-<Route path="/stake">
-            
-            <div>
-    
-              {    /* console.log(yourHex)*/}
-            </div>
-              {this.stakeCount}
-  <CardColumns >
-    <Card style={{ backgroundColor: '#3a3a3a', color: 'white'}}>
-    {content} 
-    </Card>
-    <Card style={{ backgroundColor: '#3a3a3a', color: 'white'}}>
-  <PieChart
-    data={[
-      { title: 'Circulating', value: totalSupply_ - globals.lockedHeartsTotal, color: '#E38627' },
-      { title: 'Burned', value: burned, color: '#C13C37' },
-      { title: 'Staked', value: globals.lockedHeartsTotal / 10000000, color: '#3386FF'},
-    ]}
-  />
-    </Card>
-    <Card style={{ backgroundColor: '#3a3a3a', color: 'white'}}>
-    
-      <Card.Body>
-        <Card.Title>Amount in Circulation</Card.Title>
-        <Card.Text>
-        <small className="text-muted">DEF (Orange):&nbsp; </small>
-        <medium> { strip12(totalSupply_ - (globals.lockedHeartsTotal / 10000000)) } </medium>
-       
-        </Card.Text>
-        <Card.Text>
-        <small className="text-muted">Burned (Red):&nbsp; </small>
-        <medium> { burned} </medium>
-        </Card.Text>
-  
-        <Card.Text>
-        <small className="text-muted"> Staked: &nbsp; </small>
-        <medium> {globals.lockedHeartsTotal / 100000000} </medium>
-        </Card.Text>
-  
-        <Card.Text>
-        <small className="text-muted"> Percent Burned: &nbsp; </small>
-        <medium> {strip4(burned / parseInt(totalSupply_)) * 100 + '%'} </medium>
-        </Card.Text>
-  
-       
-        
-      </Card.Body>
-      <Card.Footer>
-        <small className="text-muted">Last updated 3 mins ago</small>
-      </Card.Footer>
-  
-    </Card>
-    <Card style={{ backgroundColor: '#3a3a3a', color: 'white'}}>
-    <Card.Body>
-      <Card.Text>
-        <small className="text-muted"> Share Rate: &nbsp; </small>
-        <medium> {strip8(shareRate / 1000000000000)} </medium>
-        </Card.Text>
-      </Card.Body>
-    </Card>
-  </CardColumns>
-  <CardColumns>
-  
-  <Card style={{ width: '100vw', height: 'auto', margin: 'auto', marginTop: '0.05vh', backgroundColor: '#3a3a3a', color: 'white'}}>
-    <Card.Header as="h5">Stakes Info</Card.Header>
-    <Card.Body>
-      <Card.Title>Current Stakes</Card.Title>
-      <Card.Text>
-        New stakes that are not finished or are ready to be claimed.
-      </Card.Text>
-      <Card.Text>
-      Loading
-      </Card.Text>
-      <Card.Title>Ended Stakes</Card.Title>
-      <Card.Text>
-        List of stakes that have ended previously.
-      </Card.Text>
-      <Card.Text>
-      Loading
-      </Card.Text>
-    </Card.Body>
-  </Card>
-  
-  </CardColumns>
-              <main role="main" className="col-lg-12 " style={{ maxWidth: '600px' }}>                 
-                </main>
-                <div className="content mr-auto ml-auto">
-
-                </div>
-            </Route>
-</Switch>
-
-      </div>
-  
-    )
-  }
-  else{
-
+    const tits = Number(this.state.currentDay.toString()) + 1;
  
 
     return (
@@ -796,7 +597,7 @@ const client = new ApolloClient({
       <div>
     
         <body>
-                      <Router basename="/frontend">
+               
         <div>
     <nav>
       <Navbar  bg="dark" variant="dark">
@@ -808,9 +609,9 @@ const client = new ApolloClient({
       <Nav.Link href="https://decentralife.medium.com/decentralife-token-846cfd424901">Info</Nav.Link>
 
       <NavDropdown title="Solutions" id="basic-nav-dropdown">
-        <NavDropdown.Item as={Link} to="/stake">Stake</NavDropdown.Item>
+
         <NavDropdown.Item as={Link} to="/transform">Transform</NavDropdown.Item>
-        <NavDropdown.Item as={Link} to="/transfer">Transfer</NavDropdown.Item>
+
         <NavDropdown.Divider />
         <NavDropdown.Item href="#action/3.4">Trade</NavDropdown.Item>
       </NavDropdown>
@@ -825,169 +626,16 @@ const client = new ApolloClient({
   </Navbar.Collapse>
 </Navbar>
     </nav>
-
     </div>
-              <Switch>
-          <Route path="/stake">
-
-          <div>
-  
-
-          </div>
-            {this.stakeCount}
-<CardColumns >
-  <Card style={{ backgroundColor: '#3a3a3a', color: 'white'}}>
-  {content} 
-  {//accountDailyDataGraph
-  }
-  </Card>
-
-  <Card style={{ backgroundColor: '#3a3a3a', color: 'white'}}>
-  <Card.Body>
-    <Card.Text>
-      <small className="text-muted"> Share Rate: &nbsp; </small>
-      <medium> {strip8(shareRate / 1000000000000)} </medium>
-      </Card.Text>
-    </Card.Body>
-  </Card>
-</CardColumns>
-<CardColumns>
-
-<Card style={{ width: '100vw', height: 'auto', margin: 'auto', marginTop: '0.05vh', backgroundColor: '#3a3a3a', color: 'white'}}>
-  <Card.Header as="h5">Stakes Info</Card.Header>
-  <Card.Body>
-    <Card.Title>Current Stakes</Card.Title>
-    <Card.Text>
-      New stakes that are not finished or are ready to be claimed.
-    </Card.Text>
-    {stakeComp}
-    <Card.Title>Ended Stakes</Card.Title>
-    <Card.Text>
-      List of stakes that have ended previously.
-    </Card.Text>
-    {stakeEnds}
-
-  </Card.Body>
-</Card>
-
-</CardColumns>
-            <main role="main" className="col-lg-12 " style={{ maxWidth: '600px' }}>                 
-              </main>
-              <div className="content mr-auto ml-auto">
-
-              </div>
-          </Route>
+        <Switch>
           <Route path="/transform">
-          {transform}
-          {dailyDataList}
-          <CardGroup>
-          <Card style={{ backgroundColor: '#3a3a3a', color: 'white'}}>
-  <Card.Header as="h5">Transform Lobby Info</Card.Header>
-  <Card.Body>
-    <Card.Title>Enters</Card.Title>
-    <Card.Text>
-     Information for Entered ETH to Transform into HEX Token (minting)
-    </Card.Text>
-    {xfLobbyEnters}
-    <Card.Title>Exits</Card.Title>
-    <Card.Text>
-      Information for Total amount recieved from Day in Transform lobby, Based on the amount of ETH transformed.
-    </Card.Text>
-    {xfLobbyExits}
-
-  </Card.Body>
-
-</Card>
-
-            <Card style={{ backgroundColor: '#3a3a3a', color: 'white'}}>
-  <Card.Header as="h5">Transform</Card.Header>
-  <Card.Body>
-    <Card.Title>Enters</Card.Title>
-    <Card.Text>
-    <progress value={progressValue} max="350" />
-    <div>
-              <center>
-            <h3 class="margin-right-emoji">Scroll Down to Day {this.state.currentDay}</h3>
-            </center>
-            </div>
-    </Card.Text>
-
-  </Card.Body>
-
-  <center>
-  <Table striped bordered variant="dark" style={{width: '43vw', height: 'auto', margin: '0.5vh', marginTop: '0.05vh', backgroundColor: '#g0g0g0', color: 'white'}}>
-  <thead style={{color: "black", marginLeft: "100px"}} >
-            <tr>
-              <td style={{color: "white",width: "20vw"}}>
-              &nbsp;&nbsp;&nbsp;&nbsp;  Day
-              </td>
-              <td style={{color: "white",width: "10vw"}}>
-              &nbsp;&nbsp;&nbsp;&nbsp;Available
-              </td>
-              <td style={{color: "white",width: "10vw"}}>
-              All (ETH)
-              </td>
-              <td style={{ color: "white",width: "50vw", marginRight: "500vw"}}>
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DEF / 1 ETH
-              </td>
-
-              <td style={{color: "white",width: "20vw"}}> 
-              Your DEF
-              </td>
-              <td style={{color: "white", width: "15vw"}}>
-                
-                Your ETH
-              </td>
-              <td style={{color: "white", width: "15vw"}}>
-                Enter/Exit
-              </td>
-            </tr>
-          </thead>
-          </Table>
-  <TransformList 
-          day={currentDay}
-          ethTransformed={this.props.ethTransformed} 
-          totalEth={Web3.utils.fromWei(totalEthXL, "ether")} 
-          hexToEth={hexToEth} 
-          closing={currentDay}
-          yourAddress={yourAddress}
-          yourHex={yourHex}
-          //dailyData={dailyData}
-          yourEth={yourEth}
-          yourExitButton={yourExitButton}
-          yourEnterButton={yourEnterButton}
-          xfLobbyExit={this.exitDay}
-          xfLobbyEnter={this.enterDay}
-          xfLobbyMembers={xfLobbyMembers}/>
-          </center>
-
-</Card>
-
-</CardGroup>
-
+          { transform }
           </Route>
-
-          <Route path="/transform">
-          {dailyDataList}
-          {dailyDataGraph}
-          {accountDailyDataGraph}
-            <center>
-            <h1 style={{color: "white"}}>
-              Loading, Please Wait...
-              </h1>
-              </center></Route>
-
-
-
-              
 
           <Route path="/" exact>
-          
-          <Container>
+    <Container>
   <Row xs={2} md={4} lg={6}>
-
   <Image src="https://i.imgur.com/UoMFVsj.jpg" fluid />
- 
   </Row>
   <Row xs={1} md={2}>
     <Col>    <div style={{color:"white"}}>
@@ -995,10 +643,9 @@ const client = new ApolloClient({
              <p>Certificate of Deposit on the Blockchain.</p>
             </div></Col>
             <Col> <h1>{<Wallet / >}</h1></Col>
-    
   </Row>
   <Card>
-
+    
 <div className="footer">
     <p>HEX Token </p>
     <p><a href="https://etherscan.io/token/0x2b591e99afe9f32eaa6214f7b7629768c40eeb39">Etherscan</a></p>
@@ -1010,8 +657,6 @@ const client = new ApolloClient({
           <Route path="/airdrop">
           {/* airdrop */}
           </Route>
-
-
           <Route path="/transfer" exact>
             <Card style={{ backgroundColor: '#3a3a3a', color: 'white'}}>
             <Card.Body> 
@@ -1065,14 +710,13 @@ const client = new ApolloClient({
 
           </Route>
         </Switch>
-        </Router>
+  
         </body>
       </div>
     );
   }
   }
   
-}
 const params = queryString.parse(document.location.search);
 const redirect = params.redirect; // this would be "abcdefg" if the query was "?redirect=abcdefg"
 if (document.location.pathname === '/' && redirect) {
