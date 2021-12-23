@@ -10,11 +10,11 @@ function Wallet() {
       {wallet.status === 'connected' ? (
         <div>
           <div style={{color: 'white', fontSize:"20px"}}>Account: {wallet.account}</div>
-          <button onClick={() => wallet.reset()}>Connected to Kovan.</button>
+          <button onClick={() => wallet.reset()}>Connected to RINKEBY.</button>
         </div>
       ) : (
         <div>
-          <button onClick={() => wallet.connect()}>Connect to Kovan</button>
+          <button onClick={() => wallet.connect()}>Connect to RINKEBY.</button>
         </div>
       )}
     </>
@@ -24,7 +24,7 @@ function Wallet() {
 // Wrap everything in <UseWalletProvider />
 export default () => (
   <UseWalletProvider
-    chainId={42}
+    chainId={4}
     connectors={{
       // This is how connectors get configured
       portis: { dAppId: 'my-dapp-id-123-xyz' },

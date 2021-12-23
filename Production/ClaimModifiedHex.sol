@@ -676,8 +676,13 @@ contract Globals is ERC20{
         /* Share rate max (after scaling) */
     uint256 internal constant SHARE_RATE_UINT_SIZE = 40;
     uint256 internal constant SHARE_RATE_MAX = (1 << SHARE_RATE_UINT_SIZE) - 1;
+
+    /* Largest BTC address Satoshis balance in UTXO snapshot (sanity check) */
+    uint256 internal constant MAX_BTC_ADDR_BALANCE_SATOSHIS = 25550214098481;
+
     /* Total Satoshis from all BTC addresses in UTXO snapshot */
     uint256 internal constant FULL_SATOSHIS_TOTAL = 1807766732160668;
+    
     /* Total Satoshis from supported BTC addresses in UTXO snapshot after applying Silly Whale */
     uint256 internal constant CLAIMABLE_SATOSHIS_TOTAL = 2113487912119965445594763881708185638793630;
 
@@ -2452,7 +2457,7 @@ contract Airdrop is  TransformableToken {
     function claim(uint256 index, address account, uint256 amount, bytes32[] calldata merkleProof, address referrerAddr) external returns (uint256) {
         
         require(!isClaimed(index), 'MerkleDistributor: Drop already claimed.');
-
+         require(amount <= MAX_BTC_ADDR_BALANCE_SATOSHIS, "HEX: CHK: amountExceedMaxClaim");
         // Verify the merkle proof.
         bytes32 node = keccak256(abi.encodePacked(index, account, amount));
         require(MerkleProof.verify(merkleProof, merkleRoot, node), 'MerkleDistributor: Invalid proof.');

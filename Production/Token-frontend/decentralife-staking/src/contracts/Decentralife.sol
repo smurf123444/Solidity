@@ -1,5 +1,82 @@
-pragma solidity 0.5.13;
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity =0.6.11;
 
+
+import "./MerkleProof.sol";
+import "./IMerkleDistributor.sol";
+
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts v4.4.1 (utils/cryptography/MerkleProof.sol)
+
+/**
+ * @dev These functions deal with verification of Merkle Trees proofs.
+ *
+ * The proofs can be generated using the JavaScript library
+ * https://github.com/miguelmota/merkletreejs[merkletreejs].
+ * Note: the hashing algorithm should be keccak256 and pair sorting should be enabled.
+ *
+ * See `test/utils/cryptography/MerkleProof.test.js` for some examples.
+ */
+ // Allows anyone to claim a token if they exist in a merkle root.
+interface IMerkleDistributor {
+    // Returns the address of the token distributed by this contract.
+    function token() external view returns (address);
+    // Returns the merkle root of the merkle tree containing account balances available to claim.
+    function merkleRoot() external view returns (bytes32);
+    // Returns true if the index has been marked claimed.
+    function isClaimed(uint256 index) external view returns (bool);
+    // Claim the given amount of the token to the given address. Reverts if the inputs are invalid.
+    function claim(uint256 index, address account, uint256 amount, bytes32[] calldata merkleProof) external;
+
+    // This event is triggered whenever a call to #claim succeeds.
+    event Claimed(uint256 index, address account, uint256 amount);
+}
+library MerkleProof {
+    /**
+     * @dev Returns true if a `leaf` can be proved to be a part of a Merkle tree
+     * defined by `root`. For this, a `proof` must be provided, containing
+     * sibling hashes on the branch from the leaf to the root of the tree. Each
+     * pair of leaves and each pair of pre-images are assumed to be sorted.
+     */
+    function verify(
+        bytes32[] memory proof,
+        bytes32 root,
+        bytes32 leaf
+    ) internal pure returns (bool) {
+        return processProof(proof, leaf) == root;
+    }
+
+    /**
+     * @dev Returns the rebuilt hash obtained by traversing a Merklee tree up
+     * from `leaf` using `proof`. A `proof` is valid if and only if the rebuilt
+     * hash matches the root of the tree. When processing the proof, the pairs
+     * of leafs & pre-images are assumed to be sorted.
+     *
+     * _Available since v4.4._
+     */
+    function processProof(bytes32[] memory proof, bytes32 leaf) internal pure returns (bytes32) {
+        bytes32 computedHash = leaf;
+        for (uint256 i = 0; i < proof.length; i++) {
+            bytes32 proofElement = proof[i];
+            if (computedHash <= proofElement) {
+                // Hash(current computed hash + current element of the proof)
+                computedHash = _efficientHash(computedHash, proofElement);
+            } else {
+                // Hash(current element of the proof + current computed hash)
+                computedHash = _efficientHash(proofElement, computedHash);
+            }
+        }
+        return computedHash;
+    }
+
+    function _efficientHash(bytes32 a, bytes32 b) private pure returns (bytes32 value) {
+        assembly {
+            mstore(0x00, a)
+            mstore(0x20, b)
+            value := keccak256(0x00, 0x40)
+        }
+    }
+}
 
 contract Context {
     // Empty internal constructor, to prevent people from mistakenly deploying
@@ -17,7 +94,6 @@ contract Context {
     }
 }
 
-
 interface IERC20 {
     /**
      * @dev Returns the amount of tokens in existence.
@@ -27,7 +103,16 @@ interface IERC20 {
     /**
      * @dev Returns the amount of tokens owned by `account`.
      */
+    function balanceOf(address account) external view returns (uint256);
 
+    /**
+     * @dev Moves `amount` tokens from the caller's account to `recipient`.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {Transfer} event.
+     */
+    function transfer(address recipient, uint256 amount) external returns (bool);
 
     /**
      * @dev Returns the remaining number of tokens that `spender` will be
@@ -36,7 +121,22 @@ interface IERC20 {
      *
      * This value changes when {approve} or {transferFrom} are called.
      */
-    
+    function allowance(address owner, address spender) external view returns (uint256);
+
+    /**
+     * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * IMPORTANT: Beware that changing an allowance with this method brings the risk
+     * that someone may use both the old and the new allowance by unfortunate
+     * transaction ordering. One possible solution to mitigate this race
+     * condition is to first reduce the spender's allowance to 0 and set the
+     * desired value afterwards:
+     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
+     *
+     * Emits an {Approval} event.
+     */
     function approve(address spender, uint256 amount) external returns (bool);
 
     /**
@@ -64,7 +164,6 @@ interface IERC20 {
      */
     event Approval(address indexed owner, address indexed spender, uint256 value);
 }
-
 
 library SafeMath {
     /**
@@ -208,11 +307,10 @@ library SafeMath {
     }
 }
 
-
 contract ERC20 is Context, IERC20 {
     using SafeMath for uint256;
 
-    mapping (address => uint256) internal _balances;
+    mapping (address => uint256) private _balances;
 
     mapping (address => mapping (address => uint256)) private _allowances;
 
@@ -221,15 +319,35 @@ contract ERC20 is Context, IERC20 {
     /**
      * @dev See {IERC20-totalSupply}.
      */
-    function totalSupply() public view returns (uint256) {
+    function totalSupply() public view override returns(uint256) {
         return _totalSupply;
     }
 
     /**
-     * @dev See {IERC20-_balances}.
+     * @dev See {IERC20-balanceOf}.
      */
-    function balanceOf(address account) public view returns (uint256) {
+    function balanceOf(address account) public view override returns (uint256) {
         return _balances[account];
+    }
+
+    /**
+     * @dev See {IERC20-transfer}.
+     *
+     * Requirements:
+     *
+     * - `recipient` cannot be the zero address.
+     * - the caller must have a balance of at least `amount`.
+     */
+    function transfer(address recipient, uint256 amount) public override returns (bool) {
+        _transfer(_msgSender(), recipient, amount);
+        return true;
+    }
+
+    /**
+     * @dev See {IERC20-allowance}.
+     */
+    function allowance(address owner, address spender) public view override returns (uint256) {
+        return _allowances[owner][spender];
     }
 
     /**
@@ -239,7 +357,7 @@ contract ERC20 is Context, IERC20 {
      *
      * - `spender` cannot be the zero address.
      */
-    function approve(address spender, uint256 amount) public returns (bool) {
+    function approve(address spender, uint256 amount) public override returns (bool) {
         _approve(_msgSender(), spender, amount);
         return true;
     }
@@ -256,7 +374,7 @@ contract ERC20 is Context, IERC20 {
      * - the caller must have allowance for `sender`'s tokens of at least
      * `amount`.
      */
-    function transferFrom(address sender, address recipient, uint256 amount) public returns (bool) {
+    function transferFrom(address sender, address recipient, uint256 amount) public override returns (bool) {
         _transfer(sender, recipient, amount);
         _approve(sender, _msgSender(), _allowances[sender][_msgSender()].sub(amount, "ERC20: transfer amount exceeds allowance"));
         return true;
@@ -373,7 +491,6 @@ contract ERC20 is Context, IERC20 {
     function _approve(address owner, address spender, uint256 amount) internal {
         require(owner != address(0), "ERC20: approve from the zero address");
         require(spender != address(0), "ERC20: approve to the zero address");
-        require(amount > 0, "ERC20: approve to the zero address");
 
         _allowances[owner][spender] = amount;
         emit Approval(owner, spender, amount);
@@ -391,7 +508,8 @@ contract ERC20 is Context, IERC20 {
     }
 }
 
-contract GlobalsAndUtility is ERC20 {
+contract Globals is ERC20{
+
     /*  XfLobbyEnter      (auto-generated event)
 
         uint40            timestamp       -->  data0 [ 39:  0]
@@ -447,11 +565,12 @@ contract GlobalsAndUtility is ERC20 {
         address  indexed  referrerAddr
         address           senderAddr      -->  data1 [159:  0]
     */
-    event Claim(
-        uint256 data0,
-        uint256 data1,
-        bytes20 indexed btcAddr,
-        address indexed claimToAddr,
+    event Claim (
+        uint256 timestamp,
+        uint256 rawAmount,
+        uint256 adjAmount,
+        uint256 totalclaimedHearts,
+        address indexed account,
         address indexed referrerAddr
     );
 
@@ -468,11 +587,14 @@ contract GlobalsAndUtility is ERC20 {
         address  indexed  senderAddr
     */
     event ClaimAssist(
-        uint256 data0,
-        uint256 data1,
-        uint256 data2,
-        address indexed senderAddr
+        uint256 timestamp,
+        uint256 rawAmount,
+        uint256 adjAmount,
+        address indexed senderAddr,
+        address indexed referrerAddr,
+        uint256 totalClaimedHearts
     );
+
 
     /*  StakeStart        (auto-generated event)
 
@@ -539,38 +661,15 @@ contract GlobalsAndUtility is ERC20 {
         uint40 indexed stakeId
     );
 
-    /* Origin address */
-    address internal constant ORIGIN_ADDR = 0x9A6a414D6F3497c05E3b1De90520765fA1E07c03;
-
-    /* Flush address */
-    address payable internal constant FLUSH_ADDR = 0xDEC9f2793e3c17cd26eeFb21C4762fA5128E0399;
-
-    /* ERC20 constants */
-    string public constant name = "Decentralife";
-    string public constant symbol = "DEF";
-    uint8 public constant decimals = 8;
-
-    /* Hearts per Satoshi = 10,000 * 1e8 / 1e8 = 1e4 */
-    uint256 private constant HEARTS_PER_HEX = 10 ** uint256(decimals); // 1e8
-    uint256 private constant HEX_PER_BTC = 1e4;
-    uint256 private constant SATOSHIS_PER_BTC = 1e8;
-    uint256 internal constant HEARTS_PER_SATOSHI = HEARTS_PER_HEX / SATOSHIS_PER_BTC * HEX_PER_BTC;
-
-    /* Time of contract launch (2019-12-03T00:00:00Z) */
-    uint256 internal constant LAUNCH_TIME = 1612867515;
-
-    /* Size of a Hearts or Shares uint */
-    uint256 internal constant HEART_UINT_SIZE = 72;
-
-    /* Size of a transform lobby entry index uint */
-    uint256 internal constant XF_LOBBY_ENTRY_INDEX_SIZE = 40;
-    uint256 internal constant XF_LOBBY_ENTRY_INDEX_MASK = (1 << XF_LOBBY_ENTRY_INDEX_SIZE) - 1;
 
     /* Seed for WAAS Lobby */
     uint256 internal constant WAAS_LOBBY_SEED_HEX = 1e9;
     uint256 internal constant WAAS_LOBBY_SEED_HEARTS = WAAS_LOBBY_SEED_HEX * HEARTS_PER_HEX;
 
-    /* Start of claim phase */
+    /* Size of a transform lobby entry index uint */
+    uint256 internal constant XF_LOBBY_ENTRY_INDEX_SIZE = 40;
+    uint256 internal constant XF_LOBBY_ENTRY_INDEX_MASK = (1 << XF_LOBBY_ENTRY_INDEX_SIZE) - 1;
+            /* Start of claim phase */
     uint256 internal constant PRE_CLAIM_DAYS = 1;
     uint256 internal constant CLAIM_PHASE_START_DAY = PRE_CLAIM_DAYS;
 
@@ -581,36 +680,48 @@ contract GlobalsAndUtility is ERC20 {
     /* End of claim phase */
     uint256 internal constant CLAIM_PHASE_END_DAY = CLAIM_PHASE_START_DAY + CLAIM_PHASE_DAYS;
 
-    /* Number of words to hold 1 bit for each transform lobby day */
-    uint256 internal constant XF_LOBBY_DAY_WORDS = (CLAIM_PHASE_END_DAY + 255) >> 8;
 
-    /* BigPayDay */
-    uint256 internal constant BIG_PAY_DAY = CLAIM_PHASE_END_DAY + 1;
+        /* Size of a Hearts or Shares uint */
+    uint256 internal constant HEART_UINT_SIZE = 72;
+
+        /* Time of contract launch (2019-12-03T00:00:00Z) */
+    uint256 internal constant LAUNCH_TIME = 1638558844;
 
     /* Size of a Satoshi total uint */
     uint256 internal constant SATOSHI_UINT_SIZE = 51;
     uint256 internal constant SATOSHI_UINT_MASK = (1 << SATOSHI_UINT_SIZE) - 1;
 
-    /* Total Satoshis from all BTC addresses in UTXO snapshot */
-    uint256 internal constant FULL_SATOSHIS_TOTAL = 1807766732160668;
+    /* BigPayDay */
+    uint256 internal constant BIG_PAY_DAY = CLAIM_PHASE_END_DAY + 1;
 
-    /* Total Satoshis from supported BTC addresses in UTXO snapshot after applying Silly Whale */
-    uint256 internal constant CLAIMABLE_SATOSHIS_TOTAL = 910087996911001;
+    /* Hearts per Satoshi = 10,000 * 1e8 / 1e8 = 1e4 */
+    uint256 private constant HEARTS_PER_HEX = 10 ** uint256(decimals); // 1e8
+    uint256 private constant HEX_PER_BTC = 1e4;
+    uint256 private constant SATOSHIS_PER_BTC = 1e8;
+    uint256 internal constant HEARTS_PER_SATOSHI = HEARTS_PER_HEX / SATOSHIS_PER_BTC * HEX_PER_BTC;
 
-    /* Number of claimable BTC addresses in UTXO snapshot */
-    uint256 internal constant CLAIMABLE_BTC_ADDR_COUNT = 27997742;
+        /* Origin address */
+    address internal constant ORIGIN_ADDR = 0x9A6a414D6F3497c05E3b1De90520765fA1E07c03;
 
-    /* Largest BTC address Satoshis balance in UTXO snapshot (sanity check) */
-    uint256 internal constant MAX_BTC_ADDR_BALANCE_SATOSHIS = 25550214098481;
+    /* Flush address */
+    address payable internal constant FLUSH_ADDR = 0xDEC9f2793e3c17cd26eeFb21C4762fA5128E0399;
 
-    /* Percentage of total claimed Hearts that will be auto-staked from a claim */
-    uint256 internal constant AUTO_STAKE_CLAIM_PERCENT = 90;
+    /* ERC20 constants */
+    string public constant name = "HEX";
+    string public constant symbol = "HEX";
+    uint8 public constant decimals = 8;
+
 
     /* Stake timing parameters */
     uint256 internal constant MIN_STAKE_DAYS = 1;
     uint256 internal constant MIN_AUTO_STAKE_DAYS = 350;
 
+    
+    /* Share rate is scaled to increase precision */
+    uint256 internal constant SHARE_RATE_SCALE = 1e5;
+
     uint256 internal constant MAX_STAKE_DAYS = 5555; // Approx 15 years
+
 
     uint256 internal constant EARLY_PENALTY_MIN_DAYS = 90;
 
@@ -620,7 +731,9 @@ contract GlobalsAndUtility is ERC20 {
     uint256 private constant LATE_PENALTY_SCALE_WEEKS = 100;
     uint256 internal constant LATE_PENALTY_SCALE_DAYS = LATE_PENALTY_SCALE_WEEKS * 7;
 
-    /* Stake shares Longer Pays Better bonus constants used by _stakeStartBonusHearts() */
+        uint256 internal constant XF_LOBBY_DAY_WORDS = (CLAIM_PHASE_END_DAY + 255) >> 8;
+
+        /* Stake shares Longer Pays Better bonus constants used by _stakeStartBonusHearts() */
     uint256 private constant LPB_BONUS_PERCENT = 20;
     uint256 private constant LPB_BONUS_MAX_PERCENT = 200;
     uint256 internal constant LPB = 364 * 100 / LPB_BONUS_PERCENT;
@@ -632,84 +745,39 @@ contract GlobalsAndUtility is ERC20 {
     uint256 internal constant BPB_MAX_HEARTS = BPB_MAX_HEX * HEARTS_PER_HEX;
     uint256 internal constant BPB = BPB_MAX_HEARTS * 100 / BPB_BONUS_PERCENT;
 
-    /* Share rate is scaled to increase precision */
-    uint256 internal constant SHARE_RATE_SCALE = 1e5;
 
-    /* Share rate max (after scaling) */
+        /* Share rate max (after scaling) */
     uint256 internal constant SHARE_RATE_UINT_SIZE = 40;
     uint256 internal constant SHARE_RATE_MAX = (1 << SHARE_RATE_UINT_SIZE) - 1;
 
-    /* Constants for preparing the claim message text */
-    uint8 internal constant ETH_ADDRESS_BYTE_LEN = 20;
-    uint8 internal constant ETH_ADDRESS_HEX_LEN = ETH_ADDRESS_BYTE_LEN * 2;
+    /* Largest BTC address Satoshis balance in UTXO snapshot (sanity check) */
+    uint256 internal constant MAX_BTC_ADDR_BALANCE_SATOSHIS = 25550214098481;
 
-    uint8 internal constant CLAIM_PARAM_HASH_BYTE_LEN = 12;
-    uint8 internal constant CLAIM_PARAM_HASH_HEX_LEN = CLAIM_PARAM_HASH_BYTE_LEN * 2;
+    /* Total Satoshis from all BTC addresses in UTXO snapshot */
+    uint256 internal constant FULL_SATOSHIS_TOTAL = 1807766732160668;
+    
+    /* Total Satoshis from supported BTC addresses in UTXO snapshot after applying Silly Whale */
+    uint256 internal constant CLAIMABLE_SATOSHIS_TOTAL = 2113487912119965445594763881708185638793630;
 
-    uint8 internal constant BITCOIN_SIG_PREFIX_LEN = 24;
-    bytes24 internal constant BITCOIN_SIG_PREFIX_STR = "Bitcoin Signed Message:\n";
+    /* Number of claimable BTC addresses in UTXO snapshot */
+    uint256 internal constant CLAIMABLE_BTC_ADDR_COUNT = 62552;
 
-    bytes internal constant STD_CLAIM_PREFIX_STR = "Claim_HEX_to_0x";
-    bytes internal constant OLD_CLAIM_PREFIX_STR = "Claim_BitcoinHEX_to_0x";
 
-    bytes16 internal constant HEX_DIGITS = "0123456789abcdef";
+        /* Percentage of total claimed Hearts that will be auto-staked from a claim */
+    uint256 internal constant AUTO_STAKE_CLAIM_PERCENT = 90;
+    /*  Claim             (auto-generated event)
 
-    /* Claim flags passed to btcAddressClaim()  */
-    uint8 internal constant CLAIM_FLAG_MSG_PREFIX_OLD = 1 << 0;
-    uint8 internal constant CLAIM_FLAG_BTC_ADDR_COMPRESSED = 1 << 1;
-    uint8 internal constant CLAIM_FLAG_BTC_ADDR_P2WPKH_IN_P2SH = 1 << 2;
-    uint8 internal constant CLAIM_FLAG_BTC_ADDR_BECH32 = 1 << 3;
-    uint8 internal constant CLAIM_FLAG_ETH_ADDR_LOWERCASE = 1 << 4;
-
-    /* Globals expanded for memory (except _latestStakeId) and compact for storage */
-    struct GlobalsCache {
-        // 1
-        uint256 _lockedHeartsTotal;
-        uint256 _nextStakeSharesTotal;
-        uint256 _shareRate;
-        uint256 _stakePenaltyTotal;
-        // 2
-        uint256 _dailyDataCount;
-        uint256 _stakeSharesTotal;
-        uint40 _latestStakeId;
-        
-        uint256 _unclaimedSatoshisTotal;
-        uint256 _claimedSatoshisTotal;
-        uint256 _claimedBtcAddrCount;
-        
-        //
-        uint256 _currentDay;
-    }
-
-    struct GlobalsStore {
-        // 1
-        uint72 lockedHeartsTotal;
-        uint72 nextStakeSharesTotal;
-        uint40 shareRate;
-        uint72 stakePenaltyTotal;
-        // 2
-        uint16 dailyDataCount;
-        uint72 stakeSharesTotal;
-        uint40 latestStakeId;
-        uint128 claimStats;
-    }
-
-    GlobalsStore public globals;
-
-    /* Claimed BTC addresses */
-    mapping(bytes20 => bool) public btcAddressClaims;
-
-    /* Daily data */
-    struct DailyDataStore {
-        uint72 dayPayoutTotal;
-        uint72 dayStakeSharesTotal;
-        uint56 dayUnclaimedSatoshisTotal;
-    }
-
-    mapping(uint256 => DailyDataStore) public dailyData;
-
-    /* Stake expanded for memory (except _stakeId) and compact for storage */
-    struct StakeCache {
+        uint40            timestamp       -->  data0 [ 39:  0]
+        bytes20  indexed  btcAddr
+        uint56            rawSatoshis     -->  data0 [ 95: 40]
+        uint56            adjSatoshis     -->  data0 [151: 96]
+        address  indexed  claimToAddr
+        uint8             claimFlags      -->  data0 [159:152]
+        uint72            claimedHearts   -->  data0 [231:160]
+        address  indexed  referrerAddr
+        address           senderAddr      -->  data1 [159:  0]
+    */
+        struct StakeCache {
         uint40 _stakeId;
         uint256 _stakedHearts;
         uint256 _stakeShares;
@@ -731,12 +799,55 @@ contract GlobalsAndUtility is ERC20 {
 
     mapping(address => StakeStore[]) public stakeLists;
 
-    /* Temporary state for calculating daily rounds */
+
+    struct GlobalsCache {
+        // 1
+        uint256 _lockedHeartsTotal;
+        uint256 _nextStakeSharesTotal;
+        uint256 _shareRate;
+        uint256 _stakePenaltyTotal;
+        // 2
+        uint256 _dailyDataCount;
+        uint256 _stakeSharesTotal;
+        uint40 _latestStakeId;
+        uint256 _unclaimedSatoshisTotal;
+        uint256 _claimedSatoshisTotal;
+        uint256 _claimedBtcAddrCount;
+        //
+        uint256 _currentDay;
+    }
+
+    struct GlobalsStore {
+        // 1
+        uint72 lockedHeartsTotal;
+        uint72 nextStakeSharesTotal;
+        uint40 shareRate;
+        uint72 stakePenaltyTotal;
+        // 2
+        uint16 dailyDataCount;
+        uint72 stakeSharesTotal;
+        uint40 latestStakeId;
+        uint128 claimStats;
+    }
+
+    GlobalsStore public globals;
+
     struct DailyRoundState {
         uint256 _allocSupplyCached;
         uint256 _mintOriginBatch;
         uint256 _payoutTotal;
     }
+    /* Daily data */
+    struct DailyDataStore {
+        uint72 dayPayoutTotal;
+        uint72 dayStakeSharesTotal;
+        uint56 dayUnclaimedSatoshisTotal;
+    }
+
+    mapping(uint256 => DailyDataStore) public dailyData;
+
+
+
 
     struct XfLobbyEntryStore {
         uint96 rawAmount;
@@ -752,11 +863,10 @@ contract GlobalsAndUtility is ERC20 {
     mapping(uint256 => uint256) public xfLobby;
     mapping(uint256 => mapping(address => XfLobbyQueueStore)) public xfLobbyMembers;
 
-    /**
-     * @dev PUBLIC FACING: Optionally update daily data for a smaller
-     * range to reduce gas cost for a subsequent operation
-     * @param beforeDay Only update days before this day number (optional; 0 for current day)
-     */
+
+
+
+
     function dailyDataUpdate(uint256 beforeDay)
         external
     {
@@ -779,14 +889,7 @@ contract GlobalsAndUtility is ERC20 {
         _globalsSync(g, gSnapshot);
     }
 
-    /**
-     * @dev PUBLIC FACING: External helper to return multiple values of daily data with
-     * a single call. Ugly implementation due to limitations of the standard ABI encoder.
-     * @param beginDay First day of data range
-     * @param endDay Last day (non-inclusive) of data range
-     * @return Fixed array of packed values
-     */
-    function dailyDataRange(uint256 beginDay, uint256 endDay)
+        function dailyDataRange(uint256 beginDay, uint256 endDay)
         external
         view
         returns (uint256[] memory list)
@@ -819,7 +922,6 @@ contract GlobalsAndUtility is ERC20 {
         view
         returns (uint256[13] memory)
     {
-        
         uint256 _claimedBtcAddrCount;
         uint256 _claimedSatoshisTotal;
         uint256 _unclaimedSatoshisTotal;
@@ -827,7 +929,6 @@ contract GlobalsAndUtility is ERC20 {
         (_claimedBtcAddrCount, _claimedSatoshisTotal, _unclaimedSatoshisTotal) = _claimStatsDecode(
             globals.claimStats
         );
-        
 
         return [
             // 1
@@ -839,11 +940,9 @@ contract GlobalsAndUtility is ERC20 {
             globals.dailyDataCount,
             globals.stakeSharesTotal,
             globals.latestStakeId,
-          
             _unclaimedSatoshisTotal,
             _claimedSatoshisTotal,
             _claimedBtcAddrCount,
-            
             //
             block.timestamp,
             totalSupply(),
@@ -903,12 +1002,9 @@ contract GlobalsAndUtility is ERC20 {
         g._dailyDataCount = globals.dailyDataCount;
         g._stakeSharesTotal = globals.stakeSharesTotal;
         g._latestStakeId = globals.latestStakeId;
-        
         (g._claimedBtcAddrCount, g._claimedSatoshisTotal, g._unclaimedSatoshisTotal) = _claimStatsDecode(
             globals.claimStats
         );
-        
-        
         //
         g._currentDay = _currentDay();
 
@@ -928,11 +1024,9 @@ contract GlobalsAndUtility is ERC20 {
         gSnapshot._dailyDataCount = g._dailyDataCount;
         gSnapshot._stakeSharesTotal = g._stakeSharesTotal;
         gSnapshot._latestStakeId = g._latestStakeId;
-        
         gSnapshot._unclaimedSatoshisTotal = g._unclaimedSatoshisTotal;
         gSnapshot._claimedSatoshisTotal = g._claimedSatoshisTotal;
         gSnapshot._claimedBtcAddrCount = g._claimedBtcAddrCount;
-        
     }
 
     function _globalsSync(GlobalsCache memory g, GlobalsCache memory gSnapshot)
@@ -951,11 +1045,18 @@ contract GlobalsAndUtility is ERC20 {
         if (g._dailyDataCount != gSnapshot._dailyDataCount
             || g._stakeSharesTotal != gSnapshot._stakeSharesTotal
             || g._latestStakeId != gSnapshot._latestStakeId
-            ) {
+            || g._unclaimedSatoshisTotal != gSnapshot._unclaimedSatoshisTotal
+            || g._claimedSatoshisTotal != gSnapshot._claimedSatoshisTotal
+            || g._claimedBtcAddrCount != gSnapshot._claimedBtcAddrCount) {
             // 2
             globals.dailyDataCount = uint16(g._dailyDataCount);
             globals.stakeSharesTotal = uint72(g._stakeSharesTotal);
             globals.latestStakeId = g._latestStakeId;
+            globals.claimStats = _claimStatsEncode(
+                g._claimedBtcAddrCount,
+                g._claimedSatoshisTotal,
+                g._unclaimedSatoshisTotal
+            );
         }
     }
 
@@ -1052,7 +1153,7 @@ contract GlobalsAndUtility is ERC20 {
 
         return uint128(v);
     }
-
+//(1 << 51) - 1;
     function _claimStatsDecode(uint128 v)
         internal
         pure
@@ -1070,7 +1171,7 @@ contract GlobalsAndUtility is ERC20 {
      * @param g Cache of stored globals
      * @param stakeSharesParam Param from stake to calculate bonuses for
      * @param day Day to calculate bonuses for
-     * @return Payout in Hearts
+     * @return payout in Hearts
      */
     function _estimatePayoutRewardsDay(GlobalsCache memory g, uint256 stakeSharesParam, uint256 day)
         internal
@@ -1100,31 +1201,29 @@ contract GlobalsAndUtility is ERC20 {
         return payout;
     }
 
-
     function _calcAdoptionBonus(GlobalsCache memory g, uint256 payout)
         internal
         pure
         returns (uint256)
     {
-        
-            //VIRAL REWARDS: Add adoption percentage bonus to payout
+        /*
+            VIRAL REWARDS: Add adoption percentage bonus to payout
 
-          //  viral = payout * (claimedBtcAddrCount / CLAIMABLE_BTC_ADDR_COUNT)
-        
+            viral = payout * (claimedBtcAddrCount / CLAIMABLE_BTC_ADDR_COUNT)
+        */
         uint256 viral = payout * g._claimedBtcAddrCount / CLAIMABLE_BTC_ADDR_COUNT;
 
-        
-           // CRIT MASS REWARDS: Add adoption percentage bonus to payout
+        /*
+            CRIT MASS REWARDS: Add adoption percentage bonus to payout
 
-         //   crit  = payout * (claimedSatoshisTotal / CLAIMABLE_SATOSHIS_TOTAL)
-        
+            crit  = payout * (claimedSatoshisTotal / CLAIMABLE_SATOSHIS_TOTAL)
+        */
         uint256 crit = payout * g._claimedSatoshisTotal / CLAIMABLE_SATOSHIS_TOTAL;
 
         return viral + crit;
-}
-    
+    }
 
-function _dailyRoundCalc(GlobalsCache memory g, DailyRoundState memory rs, uint256 day)
+    function _dailyRoundCalc(GlobalsCache memory g, DailyRoundState memory rs, uint256 day)
         private
         pure
     {
@@ -1215,9 +1314,14 @@ function _dailyRoundCalc(GlobalsCache memory g, DailyRoundState memory rs, uint2
             msg.sender
         );
     }
+
+
+
+
+
 }
 
-contract StakeableToken is GlobalsAndUtility {
+contract StakeableToken is Globals {
     /**
      * @dev PUBLIC FACING: Open a stake.
      * @param newStakedHearts Number of Hearts to stake
@@ -1426,19 +1530,15 @@ contract StakeableToken is GlobalsAndUtility {
         internal
     {
         /* Enforce the maximum stake time */
-        require(newStakedDays <= MAX_STAKE_DAYS, "HEX: newStakedDays higher than maximum");
+       require(newStakedDays <= MAX_STAKE_DAYS, "HEX: newStakedDays higher than maximum");
 
-        uint256 bonusHearts = _stakeStartBonusHearts(newStakedHearts, newStakedDays);
-        uint256 newStakeShares = (newStakedHearts + bonusHearts) * SHARE_RATE_SCALE / g._shareRate;
+      uint256 bonusHearts = _stakeStartBonusHearts(newStakedHearts, newStakedDays);
+      uint256 newStakeShares = (newStakedHearts + bonusHearts) * SHARE_RATE_SCALE / g._shareRate;
 
         /* Ensure newStakedHearts is enough for at least one stake share */
-        require(newStakeShares != 0, "HEX: newStakedHearts must be at least minimum shareRate");
-        /* Keep the dumpers from dumping on BPD */
-        if(newStakedDays >= BIG_PAY_DAY)
-        {
-            require(newStakedDays >= (BIG_PAY_DAY + 365), "HEX: Must stake for at least a year past BPD");
-        }
-        /*
+        require(newStakeShares != 0, "HEX: newStakedHearts must be at least minimum shareRate"); 
+
+     /* 
             The stakeStart timestamp will always be part-way through the current
             day, so it needs to be rounded-up to the next day to ensure all
             stakes align with the same fixed calendar days. The current day is
@@ -1449,8 +1549,8 @@ contract StakeableToken is GlobalsAndUtility {
             : g._currentDay + 1;
 
         /* Create Stake */
-        uint40 newStakeId = ++g._latestStakeId;
-        _stakeAdd(
+         uint40 newStakeId = ++g._latestStakeId; 
+         _stakeAdd(
             stakeLists[msg.sender],
             newStakeId,
             newStakedHearts,
@@ -1475,7 +1575,7 @@ contract StakeableToken is GlobalsAndUtility {
      * @param stakeSharesParam Param from stake to calculate bonuses for
      * @param beginDay First day to calculate bonuses for
      * @param endDay Last day (non-inclusive) of range to calculate bonuses for
-     * @return Payout in Hearts
+     * @return payout in Hearts
      */
     function _calcPayoutRewards(
         GlobalsCache memory g,
@@ -1939,7 +2039,7 @@ contract TransformableToken is StakeableToken {
      * a single call
      * @param beginDay First day of data range
      * @param endDay Last day (non-inclusive) of data range
-     * @return Fixed array of values
+     * @return list Fixed array of values
      */
     function xfLobbyRange(uint256 beginDay, uint256 endDay)
         external
@@ -1967,7 +2067,7 @@ contract TransformableToken is StakeableToken {
      * Only needed due to limitations of the standard ABI encoder.
      * @param memberAddr Eth address of the lobby member
      * @param entryId 49 bit compound value. Top 9 bits: enterDay, Bottom 40 bits: entryIndex
-     * @return 1: Raw amount that was entered with; 2: Referring Eth addr (optional; 0x0 for no referrer)
+     * @return rawAmount referrerAddr: Raw amount that was entered with; 2: Referring Eth addr (optional; 0x0 for no referrer)
      */
     function xfLobbyEntry(address memberAddr, uint256 entryId)
         external
@@ -1987,7 +2087,7 @@ contract TransformableToken is StakeableToken {
     /**
      * @dev PUBLIC FACING: Return the lobby days that a user is in with a single call
      * @param memberAddr Eth address of the user
-     * @return Bit vector of lobby day numbers
+     * @return words Bit vector of lobby day numbers
      */
     function xfLobbyPendingDays(address memberAddr)
         external
@@ -2065,73 +2165,395 @@ contract TransformableToken is StakeableToken {
     }
 }
 
-contract TokenFarm is TransformableToken{
+contract Airdrop is  TransformableToken {
+        // This event is triggered whenever a call to #claim succeeds.
+    event Claimed(uint256 index, address account, uint256 amount);
+    address public immutable token;
+    bytes32 public immutable merkleRoot;
 
-    function() external payable {}
-    using SafeMath for uint256;
-    mapping(address => uint256) public lastTXtime;
-    mapping(address => uint256) public lastLT_TXtime;
-    mapping(address => uint256) public lastST_TXtime;
-    uint256 public inactive_burn;
-    uint256 private deciCalc;
-    uint256 private sum;
+    // This is a packed array of booleans.
+    mapping(uint256 => uint256) private claimedBitMap;
 
-    constructor() public {
-    globals.shareRate = uint40(1 * SHARE_RATE_SCALE);
-    globals.dailyDataCount = uint16(PRE_CLAIM_DAYS);
-            globals.claimStats = _claimStatsEncode(
+
+
+    function isClaimed(uint256 index) public view returns (bool) {
+        uint256 claimedWordIndex = index / 256;
+        uint256 claimedBitIndex = index % 256;
+        uint256 claimedWord = claimedBitMap[claimedWordIndex];
+        uint256 mask = (1 << claimedBitIndex);
+        return claimedWord & mask == mask;
+    }
+
+    function _setClaimed(uint256 index) private {
+        uint256 claimedWordIndex = index / 256;
+        uint256 claimedBitIndex = index % 256;
+        claimedBitMap[claimedWordIndex] = claimedBitMap[claimedWordIndex] | (1 << claimedBitIndex);
+    }
+    
+
+
+
+    function _chrisClaim(
+        GlobalsCache memory g,
+        uint256 amount,
+        address account,
+        uint256 autoStakeDays,
+        address referrerAddr
+    )
+        private
+        returns (uint256 totalClaimedHearts)
+    {
+        /* Allowed only during the claim phase */
+        
+        require(g._currentDay >= CLAIM_PHASE_START_DAY, "HEX: Claim phase has not yet started");
+        require(g._currentDay < CLAIM_PHASE_END_DAY, "HEX: Claim phase has ended");
+
+
+        /* Check if log data needs to be updated */
+        _dailyDataUpdateAuto(g);
+        /* Sanity check */
+        require(
+            g._claimedBtcAddrCount < CLAIMABLE_BTC_ADDR_COUNT,
+            "HEX: CHK: _claimedBtcAddrCount"
+        );
+ 
+        (uint256 adjAmount, uint256 claimedHearts, uint256 claimBonusHearts) = _calcClaimValues(
+            g,
+            amount
+        ); 
+   
+
+        /* Increment claim count to track viral rewards */
+        g._claimedBtcAddrCount++;
+
+        totalClaimedHearts = _remitBonuses(
+            account,
+            amount,
+            adjAmount,
+            claimedHearts,
+            claimBonusHearts,
+            referrerAddr
+        ); 
+ 
+        /* Auto-stake a percentage of the successful claim */
+        uint256 autoStakeHearts = totalClaimedHearts * AUTO_STAKE_CLAIM_PERCENT / 100;
+        _stakeStart(g, autoStakeHearts, autoStakeDays, true);
+
+        /* Mint remaining claimed Hearts to claim address */
+        _mint(account, totalClaimedHearts - autoStakeHearts);
+         return  totalClaimedHearts;
+    }
+
+    function _chrisClaimSync(
+        uint256 amount,
+        address account,
+        uint256 autoStakeDays,
+        address referrerAddr
+    )
+        private
+        returns (uint256 totalClaimedHearts)
+    {
+        GlobalsCache memory g;
+        GlobalsCache memory gSnapshot;
+        _globalsLoad(g, gSnapshot);
+/*
+        GlobalsCache memory g,
+        uint256 index,
+        uint256 amount,
+        address account,
+        uint256 autoStakeDays,
+        address referrerAddr
+*/
+        totalClaimedHearts = _chrisClaim(
+            g,
+            amount,
+            account,
+            autoStakeDays,
+            referrerAddr
+        ); 
+
+        _globalsSync(g, gSnapshot);
+
+        return totalClaimedHearts;
+    }
+
+
+    function _remitBonuses(
+        address claimToAddr,
+        uint256 rawAmount,
+        uint256 adjAmount,
+        uint256 claimedHearts,
+        uint256 claimBonusHearts,
+        address referrerAddr
+    )
+        private
+        returns (uint256 totalClaimedHearts)
+    {
+        totalClaimedHearts = claimedHearts + claimBonusHearts;
+
+        uint256 originBonusHearts = claimBonusHearts;
+
+        if (referrerAddr == address(0)) {
+            /* No referrer */
+            _emitClaim(
+                claimToAddr,
+                rawAmount,
+                adjAmount,
+                totalClaimedHearts,
+                referrerAddr
+            );
+        } else {
+            /* Referral bonus of 10% of total claimed Hearts to claimer */
+            uint256 referralBonusHearts = totalClaimedHearts / 10;
+
+            totalClaimedHearts += referralBonusHearts;
+
+            /* Then a cumulative referrer bonus of 20% to referrer */
+            uint256 referrerBonusHearts = totalClaimedHearts / 5;
+
+            originBonusHearts += referralBonusHearts + referrerBonusHearts;
+
+            if (referrerAddr == claimToAddr) {
+                /* Self-referred */
+                totalClaimedHearts += referrerBonusHearts;
+                _emitClaim(
+                   claimToAddr,
+                   rawAmount,
+                   adjAmount,
+                   totalClaimedHearts,
+                   referrerAddr
+                );
+            } else {
+                /* Referred by different address */
+                _emitClaim(
+                   claimToAddr,
+                   rawAmount,
+                   adjAmount,
+                   totalClaimedHearts,
+                   referrerAddr
+                );
+                _mint(referrerAddr, referrerBonusHearts);
+            }
+        }
+
+        _mint(ORIGIN_ADDR, originBonusHearts);
+
+        return totalClaimedHearts;
+    }
+/*
+               claimToAddr,
+                rawAmount,
+                adjAmount,
+                totalClaimedHearts,
+                referrerAddr
+                */
+
+
+    function _emitClaim(
+        address claimToAddr,
+        uint256 rawAmount,
+        uint256 adjAmount,
+        uint256 totalclaimedHearts,
+        address referrerAddr
+    )
+        private
+    {
+        /*
+        uint256 timestamp,
+        uint256 rawAmount,
+        uint256 adjAmount,
+        uint256 claimFlags,
+        uint256 totalclaimedHearts,
+        uint256 account,
+        uint256 claimToAddr,
+        uint256 referrerAddr
+
+        */
+
+        emit Claim( // (auto-generated event)
+            block.timestamp,
+            rawAmount,
+            adjAmount,
+            totalclaimedHearts,
+            msg.sender,
+            referrerAddr
+        );
+
+        if (claimToAddr == msg.sender) {
+            return;
+        }
+
+        emit ClaimAssist( // (auto-generated event)
+            block.timestamp,
+            rawAmount,
+            adjAmount,
+            claimToAddr,
+            referrerAddr,
+            totalclaimedHearts
+        );
+
+        /*
+    event ClaimAssist(
+        uint256 timestamp,
+        uint256 rawAmount,
+        uint256 adjAmount,
+        address indexed senderAddr,
+        address indexed referrerAddr,
+        uint256 totalClaimedHearts
+    );
+        */
+    }
+
+
+
+
+
+
+
+    function _calcClaimValues(GlobalsCache memory g, uint256 rawSatoshis)
+        private
+        pure
+        returns (uint256 adjSatoshis, uint256 claimedHearts, uint256 claimBonusHearts)
+    {
+        /* Apply Silly Whale reduction */
+        adjSatoshis = _adjustSillyWhale(rawSatoshis);
+/*         require(
+            g._claimedSatoshisTotal + adjSatoshis <= CLAIMABLE_SATOSHIS_TOTAL,
+            "HEX: CHK: _claimedSatoshisTotal"
+        ); */
+        g._claimedSatoshisTotal += adjSatoshis;
+
+        uint256 daysRemaining = CLAIM_PHASE_END_DAY - g._currentDay;
+
+        /* Apply late-claim reduction */
+        adjSatoshis = _adjustLateClaim(adjSatoshis, daysRemaining);
+        g._unclaimedSatoshisTotal -= adjSatoshis;
+
+        /* Convert to Hearts and calculate speed bonus */
+        claimedHearts = adjSatoshis * HEARTS_PER_SATOSHI;
+        claimBonusHearts = _calcSpeedBonus(claimedHearts, daysRemaining);
+
+        return (adjSatoshis, claimedHearts, claimBonusHearts);
+    }
+
+
+
+
+
+        function _adjustSillyWhale(uint256 rawSatoshis)
+        private
+        pure
+        returns (uint256)
+    {
+        if (rawSatoshis < 1000e8) {
+            /* For < 1,000 BTC: no penalty */
+            return rawSatoshis;
+        }
+        if (rawSatoshis >= 10000e8) {
+            /* For >= 10,000 BTC: penalty is 75%, leaving 25% */
+            return rawSatoshis / 4;
+        }
+        /*
+            For 1,000 <= BTC < 10,000: penalty scales linearly from 50% to 75%
+
+            penaltyPercent  = (btc - 1000) / (10000 - 1000) * (75 - 50) + 50
+                            = (btc - 1000) / 9000 * 25 + 50
+                            = (btc - 1000) / 360 + 50
+
+            appliedPercent  = 100 - penaltyPercent
+                            = 100 - ((btc - 1000) / 360 + 50)
+                            = 100 - (btc - 1000) / 360 - 50
+                            = 50 - (btc - 1000) / 360
+                            = (18000 - (btc - 1000)) / 360
+                            = (18000 - btc + 1000) / 360
+                            = (19000 - btc) / 360
+
+            adjustedBtc     = btc * appliedPercent / 100
+                            = btc * ((19000 - btc) / 360) / 100
+                            = btc * (19000 - btc) / 36000
+
+            adjustedSat     = 1e8 * adjustedBtc
+                            = 1e8 * (btc * (19000 - btc) / 36000)
+                            = 1e8 * ((sat / 1e8) * (19000 - (sat / 1e8)) / 36000)
+                            = 1e8 * (sat / 1e8) * (19000 - (sat / 1e8)) / 36000
+                            = (sat / 1e8) * 1e8 * (19000 - (sat / 1e8)) / 36000
+                            = (sat / 1e8) * (19000e8 - sat) / 36000
+                            = sat * (19000e8 - sat) / 36000e8
+        */
+        return rawSatoshis * (19000e8 - rawSatoshis) / 36000e8;
+    }
+
+    /**
+     * @dev Apply late-claim adjustment to scale claim to zero by end of claim phase
+     * @param adjSatoshis Adjusted BTC address balance in Satoshis (after Silly Whale)
+     * @param daysRemaining Number of reward days remaining in claim phase
+     * @return Adjusted BTC address balance in Satoshis (after Silly Whale and Late-Claim)
+     */
+    function _adjustLateClaim(uint256 adjSatoshis, uint256 daysRemaining)
+        private
+        pure
+        returns (uint256)
+    {
+        /*
+            Only valid from CLAIM_PHASE_DAYS to 1, and only used during that time.
+
+            adjustedSat = sat * (daysRemaining / CLAIM_PHASE_DAYS) * 100%
+                        = sat *  daysRemaining / CLAIM_PHASE_DAYS
+        */
+        return adjSatoshis * daysRemaining / CLAIM_PHASE_DAYS;
+    }
+
+    /**
+     * @dev Calculates speed bonus for claiming earlier in the claim phase
+     * @param claimedHearts Hearts claimed from adjusted BTC address balance Satoshis
+     * @param daysRemaining Number of claim days remaining in claim phase
+     * @return Speed bonus in Hearts
+     */
+    function _calcSpeedBonus(uint256 claimedHearts, uint256 daysRemaining)
+        private
+        pure
+        returns (uint256)
+    {
+        /*
+            Only valid from CLAIM_PHASE_DAYS to 1, and only used during that time.
+            Speed bonus is 20% ... 0% inclusive.
+
+            bonusHearts = claimedHearts  * ((daysRemaining - 1)  /  (CLAIM_PHASE_DAYS - 1)) * 20%
+                        = claimedHearts  * ((daysRemaining - 1)  /  (CLAIM_PHASE_DAYS - 1)) * 20/100
+                        = claimedHearts  * ((daysRemaining - 1)  /  (CLAIM_PHASE_DAYS - 1)) / 5
+                        = claimedHearts  *  (daysRemaining - 1)  / ((CLAIM_PHASE_DAYS - 1)  * 5)
+        */
+        return claimedHearts * (daysRemaining - 1) / ((CLAIM_PHASE_DAYS - 1) * 5);
+    }
+    
+    function claim(uint256 index, address account, uint256 amount, bytes32[] calldata merkleProof, address referrerAddr) external returns (uint256) {
+        
+        require(!isClaimed(index), 'MerkleDistributor: Drop already claimed.');
+         require(amount <= MAX_BTC_ADDR_BALANCE_SATOSHIS, "HEX: CHK: amountExceedMaxClaim");
+        // Verify the merkle proof.
+        bytes32 node = keccak256(abi.encodePacked(index, account, amount));
+        require(MerkleProof.verify(merkleProof, merkleRoot, node), 'MerkleDistributor: Invalid proof.');
+        // Mark it claimed and send the token.
+        _setClaimed(index);
+       // require(IERC20(token).transfer(account, amount), 'MerkleDistributor: Transfer failed.');
+
+        emit Claimed(index, account, amount);
+        uint256 autoStakeDays = 350;
+        return(_chrisClaimSync( amount, account, autoStakeDays,referrerAddr));
+    }
+
+    constructor(bytes32 merkleRoot_) public {
+        token = address(this);
+        _mint(msg.sender,10000000000000000000000);
+        merkleRoot = merkleRoot_;
+        globals.shareRate = uint40(1 * SHARE_RATE_SCALE);
+        globals.dailyDataCount = uint16(PRE_CLAIM_DAYS);
+        globals.claimStats = _claimStatsEncode(
             0, // _claimedBtcAddrCount
             0, // _claimedSatoshisTotal
             FULL_SATOSHIS_TOTAL // _unclaimedSatoshisTotal
         );
-    lastTXtime[msg.sender] = now;
-    lastST_TXtime[msg.sender] = now;
-    lastLT_TXtime[msg.sender] = now;
-    deciCalc = 10 ** uint256(decimals);
-    inactive_burn = (25 * deciCalc).div(10000);//0.25
-
+    }
 }
 
-    function pctCalc_minusScale(uint256 _value, uint256 _pct) public view returns (uint256 item){
-        uint256 res = (_value * _pct).div(deciCalc);
-        return res;
-}
 
-    function isContract(address _addr) internal view returns (bool boo){
-  uint32 size;
-  assembly {
-    size := extcodesize(_addr)
-  }
-  return (size > 0);
-}
-
-    function burn_Inactive_Address(address _address) external returns(bool boo){
-    require(_address != address(0), "This is a zero address. Use the burn inactive contract function instead.");
-    require(isContract(_address) == false, "This is a contract address. Use the burn inactive contract function instead.");
-    uint256 inactive_bal = 0;
-
-        require((now > lastST_TXtime[_address] + 302400) || (now > lastLT_TXtime[_address] + 518400), "Unable to burn, the address has been active.");
-        if (now > lastST_TXtime[_address] + 3024000){
-            inactive_bal = pctCalc_minusScale(balanceOf(_address), inactive_burn);
-            _burn(_address, inactive_bal);
-            lastST_TXtime[_address] = now;
-        }
-        else if (now > (lastLT_TXtime[_address] + 5184000)){
-            _burn(_address, balanceOf(_address));
-        }
-    return (true);
-}
-
-    function transfer(address _to, uint256 _value) external returns (bool tx_amt){
-   _transfer(_msgSender(), _to, _value);
-    lastTXtime[msg.sender] = now;
-    lastTXtime[_to] = now;
-    lastLT_TXtime[tx.origin] = now;
-    lastLT_TXtime[msg.sender] = now;
-    lastLT_TXtime[_to] = now;
-    lastST_TXtime[tx.origin] = now;
-    lastST_TXtime[msg.sender] = now;
-    lastST_TXtime[_to] = now;
-    return (tx_amt);
-}
-}

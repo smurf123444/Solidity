@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.3.7",
+    "@ethersproject/keccak256": "^5.5.0",
     "@metamask/onboarding": "^1.0.1",
     "@openzeppelin/contracts": "^3.3.0",
     "@reduxjs/toolkit": "^1.5.0",

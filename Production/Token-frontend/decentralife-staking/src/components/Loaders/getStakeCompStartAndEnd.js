@@ -8,7 +8,7 @@ import Popup from '../TransformLobby/PopupXf';
 import moment from 'moment';
 moment().format();
 function strip4(number) {
-  return (parseFloat(number).toPrecision(4));
+  return (parseFloat(number).toPrecision(12));
 }
 export const GetStakeCompStartAndEnd = (props) => {
   const { error, loading, data } = useQuery(stakeStartAndEndWithAccount(props.account));
