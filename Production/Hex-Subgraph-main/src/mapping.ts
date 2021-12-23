@@ -515,7 +515,7 @@ export function handleStakeGoodAccounting(event: StakeGoodAccounting): void {
   _stakeStart.save();
    
 }
-/* 
+
 export function handleXfLobbyEnter(event: XfLobbyEnter): void {
 
   let id = event.params.entryId.toHexString() + event.params.memberAddr.toHexString();
@@ -581,7 +581,7 @@ export function handleXfLobbyExit(event: XfLobbyExit): void {
   _xfLobbyEnter.save();
   _xfLobbyExit.save();
   
-} */
+} 
 
 export function handleTransfer(event: Transfer): void { 
   let _metaCount = _MetaCounts.load("Transfer");
