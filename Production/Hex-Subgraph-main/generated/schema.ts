@@ -201,7 +201,7 @@ export class _StakeStart extends Entity {
 
   get stakeEnd(): string | null {
     let value = this.get("stakeEnd");
-    if (value === null || value.kind == ValueKind.NULL) {
+    if (value === null) {
       return null;
     } else {
       return value.toString();
@@ -218,7 +218,7 @@ export class _StakeStart extends Entity {
 
   get stakeGoodAccounting(): string | null {
     let value = this.get("stakeGoodAccounting");
-    if (value === null || value.kind == ValueKind.NULL) {
+    if (value === null) {
       return null;
     } else {
       return value.toString();
@@ -919,7 +919,7 @@ export class _DailyDataUpdate extends Entity {
 
   get lobbyEth(): BigDecimal | null {
     let value = this.get("lobbyEth");
-    if (value === null || value.kind == ValueKind.NULL) {
+    if (value === null) {
       return null;
     } else {
       return value.toBigDecimal();
@@ -936,7 +936,7 @@ export class _DailyDataUpdate extends Entity {
 
   get lobbyHexAvailable(): BigDecimal | null {
     let value = this.get("lobbyHexAvailable");
-    if (value === null || value.kind == ValueKind.NULL) {
+    if (value === null) {
       return null;
     } else {
       return value.toBigDecimal();
@@ -953,7 +953,7 @@ export class _DailyDataUpdate extends Entity {
 
   get lobbyHexPerEth(): BigDecimal | null {
     let value = this.get("lobbyHexPerEth");
-    if (value === null || value.kind == ValueKind.NULL) {
+    if (value === null) {
       return null;
     } else {
       return value.toBigDecimal();
@@ -1046,7 +1046,7 @@ export class _XfLobbyEnter extends Entity {
 
   get xfLobbyExit(): string | null {
     let value = this.get("xfLobbyExit");
-    if (value === null || value.kind == ValueKind.NULL) {
+    if (value === null) {
       return null;
     } else {
       return value.toString();
@@ -1448,7 +1448,7 @@ export class _Transfer extends Entity {
 
   get methodId(): string | null {
     let value = this.get("methodId");
-    if (value === null || value.kind == ValueKind.NULL) {
+    if (value === null) {
       return null;
     } else {
       return value.toString();

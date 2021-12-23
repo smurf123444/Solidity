@@ -19,4 +19,3 @@
     "ts-loader": "^8.0.4"
   }
 }
-//graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ smurf123444/decentralife

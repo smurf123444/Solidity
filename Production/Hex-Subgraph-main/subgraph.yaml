@@ -35,6 +35,8 @@ dataSources:
           handler: handleClaim
         - event: ClaimAssist(uint256,uint256,uint256,indexed address,indexed address,uint256)
           handler: handleClaimAssist
+        - event: DailyDataUpdate(uint256,indexed address)
+          handler: handleDailyDataUpdate
         - event: ShareRateChange(uint256,indexed uint40)
           handler: handleShareRateChange
         - event: StakeEnd(uint256,uint256,indexed address,indexed uint40)
