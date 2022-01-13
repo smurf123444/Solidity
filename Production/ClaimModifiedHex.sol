@@ -4,7 +4,7 @@ pragma solidity =0.6.11;
 
 import "./MerkleProof.sol";
 import "./IMerkleDistributor.sol";
-import "hardhat/console.sol";
+
 contract Context {
     // Empty internal constructor, to prevent people from mistakenly deploying
     // an instance of this contract, which should be used via inheritance.
@@ -2142,7 +2142,6 @@ contract Airdrop is  TransformableToken {
 
         /* Check if log data needs to be updated */
         _dailyDataUpdateAuto(g);
-        console.log("_claimedBtcAddrCount : %s ", g._claimedBtcAddrCount);
         /* Sanity check */
         require(
             g._claimedBtcAddrCount < CLAIMABLE_BTC_ADDR_COUNT,
