@@ -623,31 +623,31 @@ contract Globals is ERC20{
 
     /* Hearts per Satoshi = 10,000 * 1e8 / 1e8 = 1e4 */
     uint256 private constant HEARTS_PER_HEX = 10 ** uint256(decimals); // 1e8
-    uint256 private constant HEX_PER_BTC = 1e4;
+    uint256 private constant HEX_PER_BTC = 1;
     uint256 private constant SATOSHIS_PER_BTC = 1e8;
     uint256 internal constant HEARTS_PER_SATOSHI = HEARTS_PER_HEX / SATOSHIS_PER_BTC * HEX_PER_BTC;
 
-        /* Origin address */
-    address internal constant ORIGIN_ADDR = 0x9A6a414D6F3497c05E3b1De90520765fA1E07c03;
+    /* Origin address */
+    address internal constant ORIGIN_ADDR = 0x5835d388687360e79685868a97FfaE9863478Ec5;
 
     /* Flush address */
-    address payable internal constant FLUSH_ADDR = 0xDEC9f2793e3c17cd26eeFb21C4762fA5128E0399;
+    address payable internal constant FLUSH_ADDR = 0xFF39c4ce326d48708cd3be59Daf0256Df4FC47D6;
 
     /* ERC20 constants */
-    string public constant name = "HEX";
-    string public constant symbol = "HEX";
+    string public constant name = "FLEX";
+    string public constant symbol = "FLEX";
     uint8 public constant decimals = 8;
 
 
     /* Stake timing parameters */
     uint256 internal constant MIN_STAKE_DAYS = 1;
-    uint256 internal constant MIN_AUTO_STAKE_DAYS = 350;
+    uint256 internal constant MIN_AUTO_STAKE_DAYS = 5555;
 
     
     /* Share rate is scaled to increase precision */
     uint256 internal constant SHARE_RATE_SCALE = 1e5;
 
-    uint256 internal constant MAX_STAKE_DAYS = 5555; // Approx 15 years
+    uint256 internal constant MAX_STAKE_DAYS = 16665; // Approx 45 years
 
 
     uint256 internal constant EARLY_PENALTY_MIN_DAYS = 90;
@@ -678,10 +678,10 @@ contract Globals is ERC20{
     uint256 internal constant SHARE_RATE_MAX = (1 << SHARE_RATE_UINT_SIZE) - 1;
 
     /* Largest BTC address Satoshis balance in UTXO snapshot (sanity check) */
-    uint256 internal constant MAX_BTC_ADDR_BALANCE_SATOSHIS = 25550214098481;
+    uint256 internal constant MAX_BTC_ADDR_BALANCE_SATOSHIS = 321629838305468429980937048753;
 
     /* Total Satoshis from all BTC addresses in UTXO snapshot */
-    uint256 internal constant FULL_SATOSHIS_TOTAL = 1807766732160668;
+    uint256 internal constant FULL_SATOSHIS_TOTAL = 2113487912119965445594763881708185638793630;
     
     /* Total Satoshis from supported BTC addresses in UTXO snapshot after applying Silly Whale */
     uint256 internal constant CLAIMABLE_SATOSHIS_TOTAL = 2113487912119965445594763881708185638793630;
@@ -691,7 +691,7 @@ contract Globals is ERC20{
 
 
         /* Percentage of total claimed Hearts that will be auto-staked from a claim */
-    uint256 internal constant AUTO_STAKE_CLAIM_PERCENT = 90;
+    uint256 internal constant AUTO_STAKE_CLAIM_PERCENT = 98;
     /*  Claim             (auto-generated event)
 
         uint40            timestamp       -->  data0 [ 39:  0]
@@ -755,6 +755,9 @@ contract Globals is ERC20{
         uint72 stakeSharesTotal;
         uint40 latestStakeId;
         uint128 claimStats;
+        uint256 claimedBtcAddrCount;
+        uint256 claimedSatoshisTotal;
+        uint256 unclaimedSatoshisTotal;
     }
 
     GlobalsStore public globals;
@@ -853,10 +856,9 @@ contract Globals is ERC20{
         uint256 _claimedSatoshisTotal;
         uint256 _unclaimedSatoshisTotal;
 
-        (_claimedBtcAddrCount, _claimedSatoshisTotal, _unclaimedSatoshisTotal) = _claimStatsDecode(
-            globals.claimStats
-        );
-
+        _claimedBtcAddrCount = globals.claimedBtcAddrCount;
+        _claimedSatoshisTotal = globals.claimedSatoshisTotal;
+        _unclaimedSatoshisTotal = globals.unclaimedSatoshisTotal;
         return [
             // 1
             globals.lockedHeartsTotal,
@@ -929,10 +931,10 @@ contract Globals is ERC20{
         g._dailyDataCount = globals.dailyDataCount;
         g._stakeSharesTotal = globals.stakeSharesTotal;
         g._latestStakeId = globals.latestStakeId;
-        (g._claimedBtcAddrCount, g._claimedSatoshisTotal, g._unclaimedSatoshisTotal) = _claimStatsDecode(
-            globals.claimStats
-        );
-        //
+        g._claimedBtcAddrCount = globals.claimedBtcAddrCount;
+        g._claimedSatoshisTotal = globals.claimedSatoshisTotal;
+        g._unclaimedSatoshisTotal = globals.unclaimedSatoshisTotal;
+       //
         g._currentDay = _currentDay();
 
         _globalsCacheSnapshot(g, gSnapshot);
@@ -979,11 +981,14 @@ contract Globals is ERC20{
             globals.dailyDataCount = uint16(g._dailyDataCount);
             globals.stakeSharesTotal = uint72(g._stakeSharesTotal);
             globals.latestStakeId = g._latestStakeId;
-            globals.claimStats = _claimStatsEncode(
+/*             globals.claimStats = _claimStatsEncode(
                 g._claimedBtcAddrCount,
                 g._claimedSatoshisTotal,
                 g._unclaimedSatoshisTotal
-            );
+            ); */
+            globals.claimedBtcAddrCount = g._claimedBtcAddrCount;
+            globals.claimedSatoshisTotal = g._claimedSatoshisTotal;
+            globals.unclaimedSatoshisTotal = g._unclaimedSatoshisTotal;
         }
     }
 
@@ -1065,7 +1070,7 @@ contract Globals is ERC20{
         stakeListRef.pop();
     }
 
-    function _claimStatsEncode(
+/*     function _claimStatsEncode(
         uint256 _claimedBtcAddrCount,
         uint256 _claimedSatoshisTotal,
         uint256 _unclaimedSatoshisTotal
@@ -1092,7 +1097,7 @@ contract Globals is ERC20{
 
         return (_claimedBtcAddrCount, _claimedSatoshisTotal, _unclaimedSatoshisTotal);
     }
-
+ */
     /**
      * @dev Estimate the stake payout for an incomplete day
      * @param g Cache of stored globals
@@ -2095,7 +2100,6 @@ contract TransformableToken is StakeableToken {
 contract Airdrop is  TransformableToken {
         // This event is triggered whenever a call to #claim succeeds.
     event Claimed(uint256 index, address account, uint256 amount);
-    address public immutable token;
     bytes32 public immutable merkleRoot;
 
     // This is a packed array of booleans.
@@ -2345,10 +2349,10 @@ contract Airdrop is  TransformableToken {
     {
         /* Apply Silly Whale reduction */
         adjSatoshis = _adjustSillyWhale(rawSatoshis);
-/*         require(
+        require(
             g._claimedSatoshisTotal + adjSatoshis <= CLAIMABLE_SATOSHIS_TOTAL,
             "HEX: CHK: _claimedSatoshisTotal"
-        ); */
+        ); 
         g._claimedSatoshisTotal += adjSatoshis;
 
         uint256 daysRemaining = CLAIM_PHASE_END_DAY - g._currentDay;
@@ -2373,11 +2377,11 @@ contract Airdrop is  TransformableToken {
         pure
         returns (uint256)
     {
-        if (rawSatoshis < 1000e8) {
+        if (rawSatoshis < 1000e18) {
             /* For < 1,000 BTC: no penalty */
             return rawSatoshis;
         }
-        if (rawSatoshis >= 10000e8) {
+        if (rawSatoshis >= 10000e18) {
             /* For >= 10,000 BTC: penalty is 75%, leaving 25% */
             return rawSatoshis / 4;
         }
@@ -2408,7 +2412,7 @@ contract Airdrop is  TransformableToken {
                             = (sat / 1e8) * (19000e8 - sat) / 36000
                             = sat * (19000e8 - sat) / 36000e8
         */
-        return rawSatoshis * (19000e8 - rawSatoshis) / 36000e8;
+        return rawSatoshis * (19000e18 - rawSatoshis) / 36000e18;
     }
 
     /**
@@ -2455,33 +2459,29 @@ contract Airdrop is  TransformableToken {
     }
     
     function claim(uint256 index, address account, uint256 amount, bytes32[] calldata merkleProof, address referrerAddr) external returns (uint256) {
-        
         require(!isClaimed(index), 'MerkleDistributor: Drop already claimed.');
-         require(amount <= MAX_BTC_ADDR_BALANCE_SATOSHIS, "HEX: CHK: amountExceedMaxClaim");
+        require(amount <= MAX_BTC_ADDR_BALANCE_SATOSHIS, "HEX: CHK: amountExceedMaxClaim");
         // Verify the merkle proof.
         bytes32 node = keccak256(abi.encodePacked(index, account, amount));
         require(MerkleProof.verify(merkleProof, merkleRoot, node), 'MerkleDistributor: Invalid proof.');
-          console.log("%s",account);
         // Mark it claimed and send the token.
         _setClaimed(index);
-       // require(IERC20(token).transfer(account, amount), 'MerkleDistributor: Transfer failed.');
-
         emit Claimed(index, account, amount);
-        uint256 autoStakeDays = 350;
-        return(_chrisClaimSync( amount, account, autoStakeDays,referrerAddr));
+        return(_chrisClaimSync(amount, account, MIN_AUTO_STAKE_DAYS, referrerAddr));
     }
 
     constructor(bytes32 merkleRoot_) public {
-        token = address(this);
-        _mint(msg.sender,10000000000000000000000);
         merkleRoot = merkleRoot_;
         globals.shareRate = uint40(1 * SHARE_RATE_SCALE);
         globals.dailyDataCount = uint16(PRE_CLAIM_DAYS);
-        globals.claimStats = _claimStatsEncode(
+/*         globals.claimStats = _claimStatsEncode(
             0, // _claimedBtcAddrCount
             0, // _claimedSatoshisTotal
             FULL_SATOSHIS_TOTAL // _unclaimedSatoshisTotal
-        );
+        ); */
+        globals.claimedBtcAddrCount = 0;
+        globals.claimedSatoshisTotal = 0;
+        globals.unclaimedSatoshisTotal = FULL_SATOSHIS_TOTAL;
     }
 }
 

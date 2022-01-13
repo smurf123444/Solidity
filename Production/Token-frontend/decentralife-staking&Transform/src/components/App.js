@@ -48,7 +48,7 @@ import PopupXf from './TransformLobby/PopupXf';
 
 import PopupStakeEnd from './Loaders/PopupStakeEnd.js'
 
-import "./style.scss";
+
 const MetaMaskOnboarding = require('@metamask/onboarding');
 var CanvasJSChart = CanvasJSReact.CanvasJSChart;
 var Chart = require('chart.js');
@@ -203,7 +203,7 @@ class App extends Component {
  
     const tokenFarm = new web3.eth.Contract(TokenFarm, '0x7BC95158eebAA2A48f6F8eeEad8Aa162996594bD')
     this.setState({ tokenFarm })
-      let i = 351
+
 
  // Load State Variables.
       let personalBalance = await tokenFarm.methods.balanceOf(this.state.account).call()
@@ -223,11 +223,8 @@ class App extends Component {
 
       let totalSupply_ = await tokenFarm.methods.totalSupply().call()
       this.setState({ totalSupply: totalSupply_.toString()})
+  } 
 
-
-  }
-
-  
   async loadWeb3() {
 
     if (window.ethereum) {
@@ -274,111 +271,13 @@ class App extends Component {
 //https://api.thegraph.com/subgraphs/name/smurf123444/decentralife
 //0x4587D1BCd8eC397A473D4Ae31F5862705bA67f7D
 
-    let i = 351
-    const web3 = window.web3
-    
-    const tokenFarm = new web3.eth.Contract(TokenFarm, '0x7BC95158eebAA2A48f6F8eeEad8Aa162996594bD')
-    let currentDay = await tokenFarm.methods.currentDay().call()
-    
-    let currentReversed = 351 - currentDay
-    function myTotalHex() {
-      var newArray = []
-      var amount = ""
-     for (var i = 351; i >= 1; --i)
-     {
-     if(i > 19)
-     {
-     amount = 515000000
-     newArray.push (amount)
-     }
-     if(i <= 19 && i >= 2)
-     {
+//NOTHING TO INITIATE...
 
-     amount = 525000000
-     newArray.push (amount)
-     }
-     if(i >= 1 && i < 2)
-     {
-     amount = 1500000000
-     newArray.push (amount)
-     }
- }
- return newArray;   // The function returns the product of p1 and p2
 }
-i = 351
-     //gives total ETH from current day.
-    let totalEth = await tokenFarm.methods.xfLobby(currentDay).call()
-    
-     //variable for totalEthByDay to make array with date and value of that day.
-     let totalEthByDay = []
-     let personalEthByDay = 0
-     let checkTotalEthByDay = []
-     let checkPersonalEthByDay = []
-     //total hex for all days available (hardcoded)
-/*      let hexAvailableArray = myTotalHex();
-      */
-     //Used to store today's value that has value stored (kinda simplistic)
-     let hexToEth = []
-     let yourHex = []
-     let yourEth = []
-    let progressValue = 0
-     let tempValue = 0
-     let checkCurrentDay = []
-
-     let xfLobbyMembersWrite = []
-     let xfLobbyMembersRead = []
-    
-   /*
-//Check each day for for total Eth spent on that day.
-     while (i >= 1)
-     {
-      if(currentReversed === i)
-      {
-        checkCurrentDay[349 - i + 1] = true
-      }
-      else
-      {
-        checkCurrentDay[349 - i + 1] = false
-      }
-    //    xfLobbyMembersRead  = await tokenFarm.methods.xfLobbyMembers(i, this.state.account).call()
-    //    totalEthByDay[i] = await tokenFarm.methods.xfLobby(i).call()
-       if(totalEthByDay[i] > 0){
-         tempValue = parseInt(hexAvailableArray[351 - i]) * totalEthByDay[i]
-         hexToEth[i] = hexAvailableArray[351 - i] - (parseInt(hexAvailableArray[351 - i]) * Web3.utils.fromWei(totalEthByDay[i], "Ether"))
-         yourEth[i] = Web3.utils.fromWei(totalEthByDay[i], "Ether")
-       }
-       else
-       {
-         hexToEth[i] = hexAvailableArray[351 - i] * 1
-         yourEth[i] = 0
-       }
-      xfLobbyMembersRead[i]  = await tokenFarm.methods.xfLobbyMembers(i, this.state.account).call()
-       console.log(xfLobbyMembersRead[i])
-       if(xfLobbyMembersRead[i][1] > 0){
-         checkTotalEthByDay[351 - i + 1] = true
-       }
-       else{
-        checkTotalEthByDay[351 - i + 1] = false
-       }
-     
-    //  console.log(personalEthByDay)
-       if(yourEth[i] > 0){
-         
-         yourHex[i] = hexAvailableArray[351 - i] * yourEth[i]
-       //  console.log(yourHex[i])
-         checkPersonalEthByDay[351 - i + 1] = true
-       }
-       else{
-         yourHex[i] = 0
-         checkPersonalEthByDay[351 - i + 1] = false
-       }
-       this.setState({progressValue: progressValue++})
-       i--
-     }
 
 
-*/
-}
+
+
   changeFirst = (newValue) => {
     this.setState({
       yourButtonDay: newValue,
@@ -399,7 +298,7 @@ i = 351
     //    this.state.tokenFarm.methods.approve(this.state.tokenFarm._address, amount).send({ from: this.state.account }).on('transactionHash', (hash) => {
           this.state.tokenFarm.methods.stakeStart(amount, day).send({ from: this.state.account }).on('confirmation', (hash) => {
             this.setState({ loading: true })
-            console.log(hash)
+           // console.log(hash)
           })
      //   })
       }
@@ -407,7 +306,7 @@ i = 351
 
   unstakeTokens = (stakeIDparam, stakeID) => {
     this.setState({loading: false})
-    console.log('stakeIdparam',stakeIDparam,'stakeId',stakeID)
+   // console.log('stakeIdparam',stakeIDparam,'stakeId',stakeID)
     this.state.tokenFarm.methods.stakeEnd(stakeIDparam, stakeID).send({ from: this.state.account }).on('confirmation', (hash) => {
       this.setState({ loading: true })
       this.setState({ showPopup: false })
@@ -416,7 +315,7 @@ i = 351
 //!!!!!!
   exitDay = (day) => {
     this.setState({ loading: false })
-    console.log('Came to ExitDay Function and DAY is ', day);
+    //console.log('Came to ExitDay Function and DAY is ', day);
 
     this.state.tokenFarm.methods.xfLobbyExit(day ,'0').send({ from: this.state.account }).on('confirmation', (hash) => {
       this.setState({ loading: true })
@@ -441,7 +340,7 @@ i = 351
 
     let initSupply_ = Web3.utils.fromWei(initSupply, "Gwei")
     let totalSupply_ = Web3.utils.fromWei(totalSupply, "Gwei")
-    console.log(currentDay)
+
     function strip4(number) {
       return (parseFloat(number).toPrecision(4));
   }
@@ -471,22 +370,6 @@ const client = new ApolloClient({
   link: link,
 });
 
-     
-
-
-    let popUpXf
-    if(!this.state.loading) {
-      popUpXf = <p id="loader" className="text-center">Loading...</p>
-    } else {
-      popUpXf =
-      <div>  
-          <h1> Simple Popup Example </h1>  
-          <button onClick={this.togglePopup.bind(this)}> Click To Open</button>  
-          {this.state.showPopup ? <PopupXf  text='X' closePopup={this.togglePopup.bind(this)} /> : null }  
-      </div>  
-    }
-
-
     let content
     if(!this.state.loading) {
       content = <p id="loader" className="text-center">Loading...</p>
@@ -501,13 +384,6 @@ const client = new ApolloClient({
       />
     }
 
-
-
-
-    
-         
-
-
     let xfLobbyEnters
     if(!this.state.loading) {
       xfLobbyEnters = <p id="loader" className="text-center">Loading...</p>
@@ -519,6 +395,7 @@ const client = new ApolloClient({
       />
       </ApolloProvider>
     }
+
     let xfLobbyExits
     if(!this.state.loading) {
       xfLobbyExits = <p id="loader" className="text-center">Loading...</p>
@@ -531,8 +408,6 @@ const client = new ApolloClient({
       </ApolloProvider>
     }
 
-
-
     let stakeComp
     if(!this.state.loading) {
       stakeComp = <p id="loader" className="text-center">Loading...</p>
@@ -544,7 +419,6 @@ const client = new ApolloClient({
       </ApolloProvider>
     }
 
-
     let stakeEnds
     if(!this.state.loading) {
       stakeEnds = <p id="loader" className="text-center">Loading...</p>
@@ -554,7 +428,6 @@ const client = new ApolloClient({
         <GetStakeEnd account={this.state.account}/>
       </ApolloProvider>
     }
-
   
     let dailyDataList
     if(!this.state.loading) {
@@ -585,63 +458,7 @@ const client = new ApolloClient({
         <GetAccountDailyDataGraph account={this.state.account} currentDay={this.state.currentDay}/>
       </ApolloProvider>
     }
-/* 
 
-    function Example() {
-      const [show, setShow] = useState(false);
-    
-      const handleClose = () => setShow(false);
-      const handleShow = () => setShow(true);
-    
-      return (
-        <>
-          <Button variant="primary" onClick={handleShow}>
-            Launch static backdrop modal
-          </Button>
-    
-          <Modal
-            show={show}
-            onHide={handleClose}
-            backdrop="static"
-            keyboard={false}
-          >
-            <Modal.Header closeButton>
-              <Modal.Title>Modal title</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              I will not close if you click outside me. Don't even try to press
-              escape key.
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="secondary" onClick={handleClose}>
-                Close
-              </Button>
-              <Button variant="primary">Understood</Button>
-            </Modal.Footer>
-          </Modal>
-        </>
-      );
-    }
-console.log(yourExitButton)
- */
-/*     let xfTable
-    if(!this.state.loading) {
-      xfTable = <p id="loader" className="text-center">Loading...</p>
-    } else {
-      xfTable =
-      <ApolloProvider client={client}>
-      {this.state.showPopup?<PopupStakeEnd  text='X' closePopup={this.togglePopup.bind(this)} func={this.unstakeTokens} stakeIndex={this.state.input1} stakeID={this.state.input2}/>:null}
-        <GetXfLobbyTable 
-        func={this.enterDay}
-        account={this.state.account} 
-        day={this.state.currentDay} 
-        yourEnterButton={this.state.yourEnterButton} 
-        yourExitButton={this.state.yourExitButton}
-        enteredDays={this.state.yourExitButton}
-        />
-      </ApolloProvider>
-    }
- */
     let transform
     if(!this.state.loading) {
       transform = <p id="loader" className="text-center">Loading...</p>
@@ -658,177 +475,8 @@ console.log(yourExitButton)
       />
     }
 
- /*
-  if(progressValue != 350) {
     return (
       <div>
-        
-      <Navbar  bg="dark" variant="dark">
-  <Navbar.Brand href="#home">Decentralife</Navbar.Brand>
-  <Navbar.Toggle aria-controls="basic-navbar-nav" />
-  <Navbar.Collapse id="basic-navbar-nav">
-    <Nav className="mr-auto">
-    <Nav.Link as={Link} to="/" >Home</Nav.Link>
-      <Nav.Link href="https://decentralife.medium.com/decentralife-token-846cfd424901">Info</Nav.Link>
-
-      <NavDropdown title="Solutions" id="basic-nav-dropdown">
-        <NavDropdown.Item as={Link} to="/stake">Stake</NavDropdown.Item>
-        <NavDropdown.Item as={Link} to="/transform">Transform</NavDropdown.Item>
-        <NavDropdown.Item as={Link} to="/transfer">Transfer</NavDropdown.Item>
-        <NavDropdown.Divider />
-        <NavDropdown.Item href="#action/3.4">Trade</NavDropdown.Item>
-      </NavDropdown>
-    </Nav>
-    <Nav>
-    <Nav.Link href="#Kovan42">KOVAN TESTNET</Nav.Link>
-    <Nav.Link href="#Day">Day : {this.state.currentDay}</Nav.Link>
-    <Nav.Link href="#deets"> <Wallet /></Nav.Link>
-    </Nav>
-  </Navbar.Collapse>
-</Navbar>
-<center>
-                <progress value={progressValue} max="351" />
-      </center>
-<Switch>
-<Route path="/" exact>
-          
-          <Container>
-  <Row xs={2} md={4} lg={6}>
-
-  <Image src="https://i.imgur.com/UoMFVsj.jpg" fluid />
- 
-  </Row>
-  <Row xs={1} md={2}>
-    <Col>    <div style={{color:"white"}}>
-            <h1 >Welcome to Decentralife</h1>
-             <p>Certificate of Deposit on the Blockchain.</p>
-            </div></Col>
-            <Col> <h1><Wallet /></h1></Col>
-    
-  </Row>
-  <Card>
-
-<div className="footer">
-    <p>Decentralife Token </p>
-    <p><a href="https://kovan.etherscan.io/address/0x4587d1bcd8ec397a473d4ae31f5862705ba67f7d">Etherscan</a></p>
-  </div>
-
-</Card>
-</Container>
-          </Route>
-          <Route path="/transform">
-
-          {dailyDataGraph}
-          {accountDailyDataGraph}
-            <center>
-            <h1 style={{color: "white"}}>
-              Loading, Please Wait...
-              </h1>
-              </center></Route>
-<Route path="/stake">
-            
-            <div>
-    
-              {     console.log(yourHex)}
-            </div>
-              {this.stakeCount}
-  <CardColumns >
-    <Card style={{ backgroundColor: '#3a3a3a', color: 'white'}}>
-    {content} 
-    </Card>
-    <Card style={{ backgroundColor: '#3a3a3a', color: 'white'}}>
-  <PieChart
-    data={[
-      { title: 'Circulating', value: totalSupply_ - globals.lockedHeartsTotal, color: '#E38627' },
-      { title: 'Burned', value: burned, color: '#C13C37' },
-      { title: 'Staked', value: globals.lockedHeartsTotal / 10000000, color: '#3386FF'},
-    ]}
-  />
-    </Card>
-    <Card style={{ backgroundColor: '#3a3a3a', color: 'white'}}>
-    
-      <Card.Body>
-        <Card.Title>Amount in Circulation</Card.Title>
-        <Card.Text>
-        <small className="text-muted">DEF (Orange):&nbsp; </small>
-        <medium> { strip12(totalSupply_ - (globals.lockedHeartsTotal / 10000000)) } </medium>
-       
-        </Card.Text>
-        <Card.Text>
-        <small className="text-muted">Burned (Red):&nbsp; </small>
-        <medium> { burned} </medium>
-        </Card.Text>
-  
-        <Card.Text>
-        <small className="text-muted"> Staked: &nbsp; </small>
-        <medium> {globals.lockedHeartsTotal / 100000000} </medium>
-        </Card.Text>
-  
-        <Card.Text>
-        <small className="text-muted"> Percent Burned: &nbsp; </small>
-        <medium> {strip4(burned / parseInt(totalSupply_)) * 100 + '%'} </medium>
-        </Card.Text>
-  
-       
-        
-      </Card.Body>
-      <Card.Footer>
-        <small className="text-muted">Last updated 3 mins ago</small>
-      </Card.Footer>
-  
-    </Card>
-    <Card style={{ backgroundColor: '#3a3a3a', color: 'white'}}>
-    <Card.Body>
-      <Card.Text>
-        <small className="text-muted"> Share Rate: &nbsp; </small>
-        <medium> {strip8(shareRate / 1000000000000)} </medium>
-        </Card.Text>
-      </Card.Body>
-    </Card>
-  </CardColumns>
-  <CardColumns>
-  
-  <Card style={{ width: '100vw', height: 'auto', margin: 'auto', marginTop: '0.05vh', backgroundColor: '#3a3a3a', color: 'white'}}>
-    <Card.Header as="h5">Stakes Info</Card.Header>
-    <Card.Body>
-      <Card.Title>Current Stakes</Card.Title>
-      <Card.Text>
-        New stakes that are not finished or are ready to be claimed.
-      </Card.Text>
-      <Card.Text>
-      Loading
-      </Card.Text>
-      <Card.Title>Ended Stakes</Card.Title>
-      <Card.Text>
-        List of stakes that have ended previously.
-      </Card.Text>
-      <Card.Text>
-      Loading
-      </Card.Text>
-    </Card.Body>
-  </Card>
-  
-  </CardColumns>
-              <main role="main" className="col-lg-12 " style={{ maxWidth: '600px' }}>                 
-                </main>
-                <div className="content mr-auto ml-auto">
-        {/*You can get reference to the chart instance as shown above using onRef. This allows you to access all chart properties and methods}
-                </div>
-            </Route>
-</Switch>
-
-      </div>
-  
-    )
-  }
-  else{
-
- */
-
-    return (
-      
-      <div>
-    
         <body>
                       <Router basename="/frontend">
         <div>
@@ -840,7 +488,6 @@ console.log(yourExitButton)
     <Nav className="mr-auto">
     <Nav.Link as={Link} to="/" >Home</Nav.Link>
       <Nav.Link href="https://decentralife.medium.com/decentralife-token-846cfd424901">Info</Nav.Link>
-
       <NavDropdown title="Solutions" id="basic-nav-dropdown">
         <NavDropdown.Item as={Link} to="/stake">Stake</NavDropdown.Item>
         <NavDropdown.Item as={Link} to="/transfer">Transfer</NavDropdown.Item>
@@ -850,7 +497,7 @@ console.log(yourExitButton)
       </NavDropdown>
     </Nav>
     <Nav>
-    {console.log(currentDay)}
+
     <Nav.Link href="#Day">Day : {currentDay}</Nav.Link>
     <Nav.Link href="#deets">
      {/*   <Wallet /> */}
@@ -859,23 +506,17 @@ console.log(yourExitButton)
   </Navbar.Collapse>
 </Navbar>
     </nav>
-
     </div>
               <Switch>
           <Route path="/stake">
-
           <div>
-  
-            {     console.log(yourHex)}
+
           </div>
             {this.stakeCount}
 <CardColumns >
   <Card style={{ backgroundColor: '#3a3a3a', color: 'white'}}>
   {content} 
-  {//accountDailyDataGraph
-  }
   </Card>
-
   <Card style={{ backgroundColor: '#3a3a3a', color: 'white'}}>
   <Card.Body>
     <Card.Text>
@@ -903,130 +544,21 @@ console.log(yourExitButton)
 
   </Card.Body>
 </Card>
-
 </CardColumns>
             <main role="main" className="col-lg-12 " style={{ maxWidth: '600px' }}>                 
-              </main>
-              <div className="content mr-auto ml-auto">
+            </main>
+            <div className="content mr-auto ml-auto">
 			{/*You can get reference to the chart instance as shown above using onRef. This allows you to access all chart properties and methods*/}
-              </div>
+            </div>
           </Route>
           <Route path="/transform">
           {/* xfTable */}
-          {transform}          
-{/*           <CardGroup>
-          <Card style={{ backgroundColor: '#3a3a3a', color: 'white'}}>
-  <Card.Header as="h5">Transform Lobby Info</Card.Header>
-  <Card.Body>
-    <Card.Title>Enters</Card.Title>
-    <Card.Text>
-     Information for Entered ETH to Transform into HEX Token (minting)
-    </Card.Text>
-    {xfLobbyEnters}
-    <Card.Title>Exits</Card.Title>
-    <Card.Text>
-      Information for Total amount recieved from Day in Transform lobby, Based on the amount of ETH transformed.
-    </Card.Text>
-    {xfLobbyExits}
-
-  </Card.Body>
-
-</Card>
-
-            <Card style={{ backgroundColor: '#3a3a3a', color: 'white'}}>
-  <Card.Header as="h5">Transform</Card.Header>
-  <Card.Body>
-    <Card.Title>Enters</Card.Title>
-    <Card.Text>
-    <progress value={progressValue} max="350" />
-    <div>
-              <center>
-            <h3 class="margin-right-emoji">Scroll Down to Day {this.state.currentDay}</h3>
-            </center>
-            </div>
-    </Card.Text>
-
-  </Card.Body>
-
-  <center>
-  <Table striped bordered variant="dark" style={{width: '43vw', height: 'auto', margin: '0.5vh', marginTop: '0.05vh', backgroundColor: '#g0g0g0', color: 'white'}}>
-  <thead style={{color: "black", marginLeft: "100px"}} >
-            <tr>
-              <td style={{color: "white",width: "20vw"}}>
-              &nbsp;&nbsp;&nbsp;&nbsp;  Day
-              </td>
-              <td style={{color: "white",width: "10vw"}}>
-              &nbsp;&nbsp;&nbsp;&nbsp;Available
-              </td>
-              <td style={{color: "white",width: "10vw"}}>
-              All (ETH)
-              </td>
-              <td style={{ color: "white",width: "50vw", marginRight: "500vw"}}>
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DEF / 1 ETH
-              </td>
-
-              <td style={{color: "white",width: "20vw"}}> 
-              Your DEF
-              </td>
-              <td style={{color: "white", width: "15vw"}}>
-                
-                Your ETH
-              </td>
-              <td style={{color: "white", width: "15vw"}}>
-                Enter/Exit
-              </td>
-            </tr>
-          </thead>
-          </Table>
-  <TransformList 
-          day={currentDay}
-          ethTransformed={this.props.ethTransformed} 
-          totalEth={Web3.utils.fromWei(totalEthXL, "ether")} 
-          hexToEth={hexToEth} 
-          closing={currentDay}
-          yourAddress={yourAddress}
-          yourHex={yourHex}
-          //dailyData={dailyData}
-          yourEth={yourEth}
-          yourExitButton={yourExitButton}
-          yourEnterButton={yourEnterButton}
-          xfLobbyExit={this.exitDay}
-          xfLobbyEnter={this.enterDay}
-          xfLobbyMembers={xfLobbyMembers}/>
-          </center>
-
-</Card>
-
-</CardGroup>
-
-          </Route>
-
-          <Route path="/transform">
-
-          {dailyDataGraph}
-          {accountDailyDataGraph}
-            <center>
-            <h1 style={{color: "white"}}>
-              Loading, Please Wait...
-              </h1>
-              </center>
-               */}
-               
-               
-               
+          {transform}
                </Route>
-
-
-
-              
-
           <Route path="/" exact>
-          
           <Container>
   <Row xs={2} md={4} lg={6}>
-
   <Image src="https://i.imgur.com/UoMFVsj.jpg" fluid />
- 
   </Row>
   <Row xs={1} md={2}>
     <Col>    <div style={{color:"white"}}>
@@ -1037,19 +569,14 @@ console.log(yourExitButton)
     
   </Row>
   <Card>
-
 <div className="footer">
     <p>HEX Token </p>
     <p><a href="https://etherscan.io/token/0x2b591e99afe9f32eaa6214f7b7629768c40eeb39">Etherscan</a></p>
   </div>
-
 </Card>
 </Container>
           </Route>
-
-
-
-          <Route path="/transfer" exact>
+<Route path="/transfer" exact>
             <Card style={{ backgroundColor: '#3a3a3a', color: 'white'}}>
             <Card.Body> 
           <form className="mb-3" onSubmit={(event) => {
@@ -1099,7 +626,6 @@ console.log(yourExitButton)
             </form>
             </Card.Body>
             </Card>
-
           </Route>
         </Switch>
         </Router>

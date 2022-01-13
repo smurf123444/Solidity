@@ -15,7 +15,7 @@ let json = '';
 if(json = JSON.parse(fs.readFileSync(program.input, { encoding: 'utf8' })))
 {
 
-  console.log("KIM IS SO HOT");
+  console.log("KIM IS ALRIGHT I GUESS, JUST WANTED SOME POON...");
 }
 else{
 
@@ -36,15 +36,12 @@ let arr =  JSON.parse(fs.readFileSync(program.input, { encoding: 'utf8' }));
 fs.writeFileSync('./scripts/data.json', fileContents , 'utf-8');
 var rawData = fs.readFileSync('./scripts/data.json', 'utf-8');
 //console.log(rawData);
-//var parsedData = rawData);
-const map1 = new Map();
-var count = Object.keys(arr).length;
-for (let [key, value] of Object.entries(arr)) {
-  //console.log(`${key}: ${value}`);
-  map1.set(key, value);
-}  
+var parsedData = JSON.parse(rawData);
 
-fs.writeFileSync('./scripts/accounts.json', JSON.stringify([...map1]), 'utf-8');
+var count = Object.keys(arr).length;
+
+
+fs.writeFileSync('./scripts/accounts.json', JSON.stringify(parsedData, null, "\t"), 'utf-8');
 console.log(count);
 
 console.log(fileContents2.merkleRoot);

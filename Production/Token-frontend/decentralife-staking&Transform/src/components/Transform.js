@@ -53,7 +53,6 @@ class Transform extends Component {
     if(!this.props.loading) {
       xfLobbyEnters = <p id="loader" className="text-center">Loading...</p>
     } else {
-   
       xfLobbyEnters =
       <ApolloProvider client={client}>
         <GetXfCompEntersAndExit
@@ -65,7 +64,6 @@ class Transform extends Component {
     if(!this.props.loading) {
       xfLobbyExits = <p id="loader" className="text-center">Loading...</p>
     } else {
-
       xfLobbyExits =
       <ApolloProvider client={client}>
         <GetXfExits
@@ -73,13 +71,9 @@ class Transform extends Component {
       />
       </ApolloProvider>
     }
-
     const tits = Number(this.props.day.toString()) + 1;
-
     return (
-      
       <div id="content" className="mt-3">
-
 <Card style={{ backgroundColor: '#3a3a3a', color: 'white'}}>
   <Card.Header as="h5">Transform Lobby Info</Card.Header>
   <Card.Body>
@@ -99,16 +93,11 @@ class Transform extends Component {
      (Items will appear when Transformed...)
     </Card.Text>
     {xfLobbyExits}
-
   </Card.Body>
-
 </Card>
-
         <div className="card mb-4" >
-
           <div className="card-body" style={{border:'inset', backgroundColor: '#3a3a3a', color: 'metalic'}}>
           <div>
-
 <span className="float-right text-muted">
   Account: {this.props.account}
   <br></br>
@@ -125,44 +114,34 @@ class Transform extends Component {
             <form className="mb-3" onSubmit={(event) => {
                 event.preventDefault()
                 let amount
-               
                 amount = this.input1.value.toString()
                 amount = Number(amount) * 1000000000000000000
-             console.log(amount)
+            // console.log(amount)
                 this.props.enterDay(amount)
               }}>
-  
               <div className="input-group mb-4">
-
                 <div className="input-group-append">
                   <div className="input-group-text">
-                    
                     ETH Coin
                   </div>
                 </div>
               </div>
               <div className="input-group-append">
                   <div className="input-group-text">
-                    
               <label className="float-left"><b>Deposit Day (Today): </b>&nbsp;</label>
               <span className="float-right text-muted">
                  <h3> {this.props.day}</h3>
                 </span>
-           
               </div>
               <div className="input-group-text">
               <label className="float-left"><b>Next Available Transform Day (Tommorow): </b>&nbsp;</label>
               <span className="float-right text-muted">
-              
                  <h3> {tits}</h3>
                 </span>
-           
               </div>
               </div>
               <button type="submit" className="btn btn-secondary btn-block btn-lg">START TRANSFORM (Transform ETH)</button>
-              
             </form>
-
           <input
                   type="text"
                   ref={(input2) => { this.input2 = input2 }}
@@ -172,41 +151,30 @@ class Transform extends Component {
             <form className="mb-3" onSubmit={(event) => {
                 event.preventDefault()
                 let day
-               
                 day = this.input2.value.toString()
-            
-             
                 this.props.exitDay(day)
               }}>
               <div>
-
                 <span className="float-right text-muted">
-           
                 </span>
               </div>
               <div className="input-group mb-4">
-
                 <div className="input-group-append">
                  <div className="input-group-text">
-    
                    Day to Transform
                  </div>
                 </div>
                 </div>
               <div className="input-group-append">
-    
               <div>
                 <br/>
               </div>
               <div className="input-group-text">
               <label className="float-left"><b>Last Available Transform Day (Yesterday): </b>&nbsp;</label>
               <span className="float-right text-muted">
-              
                  <h3> {tits - 2}</h3>
                 </span>
-           
               </div>
-              
               </div>
               <div className="input-group-append">
       {/*             <div className="input-group-text">
@@ -221,15 +189,9 @@ class Transform extends Component {
             </form>
           </div>
           <div>
-            
           </div>
         </div>
-        
-    
-
-      </div>
-
-      
+      </div>  
     );
   }
 }
