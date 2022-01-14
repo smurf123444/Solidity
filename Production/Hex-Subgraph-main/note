@@ -3,4 +3,4 @@
         - event: XfLobbyExit(uint256,indexed address,indexed uint256,indexed address)
           handler: handleXfLobbyExit
 
-          //graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ smurf123444/decentralife
+          //graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ smurf123444/decentralife --access-token 192aeb672f5442dab5d2b0e60afe26dc
