@@ -123,7 +123,7 @@ class Airdrop extends Component {
   connectMainnet = async (accounts) => {
     await this.web3?.eth?.getChainId().then((x) => {
       console.log(x)
-      if (x === 1337) {
+      if (x === 4) {
         this.setState({ account: accounts[0].toString(), isConnected: true });
 
         this.GDAOContract = new this.web3.eth.Contract(
