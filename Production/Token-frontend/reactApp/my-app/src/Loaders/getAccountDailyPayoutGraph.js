@@ -8,12 +8,9 @@ import moment from 'moment';
 
 
 moment().format();
-let earningFromStakes = []
+
 var plotArrayX = []
 
-
-
-let i, t = 0
 export const GetAccountDailyDataGraph = (props) => {
   const { error, loading, data } = useQuery(xfAccountDailyData(props.account, props.currentDay));
 
@@ -23,19 +20,11 @@ for (var i = 0; i < daily.length; i++) {
   daily[i] = new Array();
 }
 
-
 var starts = new Array();
 
 for (var i = 0; i < starts.length; i++) {
   starts[i] = new Number();
 }
-
-
-
-var combinedPayoutPerTshare = []
-
-
-
 
 let userActivity = {
   id: new Array,
@@ -47,9 +36,11 @@ let userActivity = {
     tsharesArray: new Number()
   }
 };
-var graph = [];
 
-for (var i = 0; i < starts.length; i++) {
+
+var graph = new Array;
+
+for (var i = 0; i < graph.length; i++) {
   graph[i] = new Number();
 }
 
@@ -91,16 +82,6 @@ for (var i = 0; i < starts.length; i++) {
    })
   }
 
-/*   i = 0;
-   data.stakeEnds.map((data) => {
-     ends[i] = [data.id,data.stakeId , (data.stakedHearts   / 100000000), (data.payout   / 100000000), (data.penalty / 100000000 ), (data.payout / 100000000)- (data.penalty  / 100000000), data.daysLate, data.servedDays, data.stakedShares, data.prevUnlocked ]
-   i++
-  })
-  let endStakes = data.stakeStarts.filter(({ id }) =>
-  !data.stakeEnds.some(exclude => exclude.id === id)
-  );  */
-
-
   function multiDimensionalUnique(arr) {
     var uniques = [];
     var itemsFound = {};
@@ -113,37 +94,21 @@ for (var i = 0; i < starts.length; i++) {
     return uniques;
   }
 
-
-
   let allStakes = multiDimensionalUnique(starts);
   let dailyInfo = multiDimensionalUnique(daily);
-/* 
-  console.log(dailyInfo[2][2])
-  console.log(dailyInfo.length)
- */
   var i, j, entry
-
 
 i=0;
 
 while(i < starts.length) {
- // console.log(starts[i][4])
- //console.log(starts[i][0]);
   userActivity.id[i] = starts[i][0];
   userActivity.startDay[i] = starts[i][4];
   userActivity.endDay[i] = starts[i][5];
   userActivity.stakedTshares[i] = starts[i][3];
-/*   while(j < userActivity[i].endDay) */
-
-
-
   i++;
 } 
 
 //console.log(dailyInfo.length)
-
-
-
 i = 0;
 
 var another = new Number;
@@ -153,67 +118,79 @@ while (i < dailyInfo.length)
   another[i] = dailyInfo[i++][1];
 }
 i = 0;
-console.log(starts.length)
+//console.log(starts.length)
 userActivity.stakeCounter = starts.length
 while(i < starts.length)
 {
-
   userActivity.data.tsharesArray[i]= another;
   userActivity.stakeCounter = userActivity.stakeCounter++;
   i++
 }
 
-
-
-
 var another1 = [];
 var j, h , r = 0
 i=0;
-
 while (i < userActivity.stakeCounter){
-/*   console.log(userActivity.startDay[i])
-  console.log(userActivity.endDay[i])
-  console.log(userActivity.stakedTshares[i]) */
-j = userActivity.startDay[i] 
-h = userActivity.endDay[i]
-r = userActivity.stakedTshares[i]
-/* console.log("start day : " + j)
-console.log("end day : " + h) */
-  while (j<h){
-/*     if(another1[j] == userActivity.stakedTshares[i])
-    {
+  graph[i] = {}
+  i++;
+}
+i=0;
+while (i < userActivity.stakeCounter){
+ // debugger;
 
-    } */
-/*     console.log(userActivity.data.tsharesArray[i][j])
-    console.log(another[j]) */
-    //debugger
  
-    console.log(another1[j])
-    if (graph[i] === undefined) {
-      graph[i] = {}
-  };
+    
+  h = userActivity.endDay[i]
+  if (h >= props.currentDay)
+  {
+    h = props.currentDay - 1
+  }
+  r = userActivity.stakedTshares[i]
+/* 
+  while (j < h){
+  graph[i][j] = another1[j] = r * Number(userActivity.data.tsharesArray[i][j])
+    //graph[i][j] = another1[j] = another1[j] + r * Number(userActivity.data.tsharesArray[i][j])
     if(another1[j]>0)
     { 
-      debugger;
-    graph[i][j] = another1[j] = another1[j] + r * Number(userActivity.data.tsharesArray[i][j])
+   
+  //  graph[i][j] = another1[j] = another1[j] + r * Number(userActivity.data.tsharesArray[i][j])
     }else{
       another1[j] =  r * Number(userActivity.data.tsharesArray[i][j])
     }
-    //
 
  if(j < props.currentDay - 1)
  {
  plotArrayX[j] = another1[j]
-
  }
  j++;
+  } */
+  for (let j = userActivity.startDay[i]; j < h; j++) {
+    graph[i][j] = another1[j] = r * Number(userActivity.data.tsharesArray[i][j])
+    //graph[i][j] = another1[j] = another1[j] + r * Number(userActivity.data.tsharesArray[i][j])
+    if(another1[j]>0)
+    { 
+   
+  //  graph[i][j] = another1[j] = another1[j] + r * Number(userActivity.data.tsharesArray[i][j])
+    }else{
+      another1[j] =  r * Number(userActivity.data.tsharesArray[i][j])
+    }
+
+ if(j < props.currentDay - 1)
+ {
+ plotArrayX[j] = another1[j]
+ }
   }
+
+
+
+
+
+
+
 i++;
 }
 i = 0;
-
-
-while(i < props.currentDay)
+/* while(i < props.currentDay)
 {
 if(plotArrayX[i] == undefined)
 {
@@ -221,72 +198,31 @@ if(plotArrayX[i] == undefined)
   i++
 }
 i++;
-}
+} */
+console.log(userActivity)
 console.log(graph)
+console.log(userActivity.startDay[1])
 
-//console.log(another)
-/* 
-i = 0;
-var ref = []
-var another1 = new Number()
-
-while (i < starts.length)
-{
-
-  j = userActivity.startDay[i];
-  while(j < dailyInfo.length)
-  {
-debugger;
-
-    if((starts[i][3] == ref[j] || userActivity.stakedTshares[i] == ref[j]) || (ref.includes(starts[i][3])))
-    {
-     // console.log(ref) 
-      userActivity.stakedTshares[i] = 0
-     j++;
-    }
-    //if start day is less than end day
-    if(j < starts[i][5])
-    {
-     another1[j] = starts[i][3]
-     userActivity.stakedTshares[i] =starts[i][3]
-      j++;
-    }
-    j++;
-    ref[j] = starts[i][3]
-    userActivity.stakedTshares[i] =starts[i][3]
-  }
-i++;
-}
-
-console.log(another1)
- */
+plotArrayX = plotArrayX.slice(userActivity.startDay[1])
 /* 
 write the array into the userActivity structure for the loop that takes in
  daily info length and displays daily info tshare for each of those days */
-
-
-
  return(
-  
   <div>
-    
-
-
 <Plot
 data={[
 {
 
   y: plotArrayX,
+  x0: userActivity.startDay[1],
   type: 'scatter',
   mode: 'markers+lines',
   marker: {color: 'blue'},
 },
-
 ]}
 layout={{width: 1000, height: 500, title: 'TESTING'}}
 />
 </div>
 )
 }
-
 export default GetAccountDailyDataGraph;
