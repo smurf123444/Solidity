@@ -2,37 +2,58 @@ import React, {} from "react";
 import { useQuery, gql } from "@apollo/client";
 import {xfAccountDailyData} from "../Querys/Queries";
 import Table from 'react-bootstrap/Table';
-//import Plot from 'react-plotly.js';
+import Plot from 'react-plotly.js';
 import '../TransformLobby/styles.css';  
 import moment from 'moment';
 
 
 moment().format();
 let earningFromStakes = []
-var BigNumber = require('big-number');
-let daily = []
-let starts = []
-let ends = []
-let bang = []
-let uniqueStake=[]
-//collecting data
-let totalAccountTShare = 0
-let totalAccountTSharePayout = [[null], [null]]
-let shareRates = []
-let startDays = []
-let endDays = []
-let stakePayout = []
-let copy = []
-//combining data
-let payoutPerDay = []
-let t = 0
-let d = 0
-let foundDay = false
+var plotArrayX = []
 
 
-let i = 0
+
+let i, t = 0
 export const GetAccountDailyDataGraph = (props) => {
-  const { error, loading, data } = useQuery(xfAccountDailyData(props.account));
+  const { error, loading, data } = useQuery(xfAccountDailyData(props.account, props.currentDay));
+
+  var daily = new Array();
+
+for (var i = 0; i < daily.length; i++) {
+  daily[i] = new Array();
+}
+
+
+var starts = new Array();
+
+for (var i = 0; i < starts.length; i++) {
+  starts[i] = new Number();
+}
+
+
+
+var combinedPayoutPerTshare = []
+
+
+
+
+let userActivity = {
+  id: new Array,
+  startDay: new Number,
+  endDay: new Number,
+  stakedTshares: new Number,
+  stakeCounter: 0,
+  data: {
+    tsharesArray: new Number()
+  }
+};
+var graph = [];
+
+for (var i = 0; i < starts.length; i++) {
+  graph[i] = new Number();
+}
+
+
 
 
  if(loading){
@@ -40,10 +61,27 @@ export const GetAccountDailyDataGraph = (props) => {
  }
  else{
   
-  
+  /*
+  THIS IS FOR FINDING
+1. Available HEx for day (Transform)
+2. Hex per Eth calculation (Transform)
+3. Total ETH in lobby (Transform)
+4. Payout per tshare (for calculating daily rewards) (Stake)
+5. day for which this information is valid. (Transform & Stake)
+ dailyDataUpdates(orderDirection:desc)
+  {
+    beginDay
+    payoutPerTShare
+    endDay
+    lobbyEth
+    lobbyHexPerEth
+    lobbyHexAvailable
+    shares
+    payout
+  }
+  */
   data.dailyDataUpdates.map((data) => {
     daily[i] = [data.beginDay, data.payoutPerTShare, data.endDay, data.lobbyEth, data.lobbyHexPerEth,data.lobbyHexAvailable, data.shares, data.payout]
-    stakePayout[i] = [data.endDay,data.payoutPerTShare]
    i++
    })
    i = 0
@@ -51,174 +89,185 @@ export const GetAccountDailyDataGraph = (props) => {
     starts[i] = [data.id, data.stakeId, data.stakedDays, data.stakeTShares, data.startDay,data.endDay, (data.stakedHearts / 100000000)]
    i++
    })
-   i = 0;
+  }
+
+/*   i = 0;
    data.stakeEnds.map((data) => {
      ends[i] = [data.id,data.stakeId , (data.stakedHearts   / 100000000), (data.payout   / 100000000), (data.penalty / 100000000 ), (data.payout / 100000000)- (data.penalty  / 100000000), data.daysLate, data.servedDays, data.stakedShares, data.prevUnlocked ]
    i++
   })
-  uniqueStake = data.stakeStarts.filter(({ id }) =>
+  let endStakes = data.stakeStarts.filter(({ id }) =>
   !data.stakeEnds.some(exclude => exclude.id === id)
-  );
-  i = 1;
-   data.dailyDataUpdates.map((data) => {
-    shareRates[i] = data.payoutPerTShare
-    i++
-   })
-   i = 0
-  data.stakeStarts.map((data) => {
+  );  */
 
-     totalAccountTSharePayout[i] = [(parseFloat(data.stakeTShares) + parseFloat(totalAccountTShare)), data.startDay, data.endDay]
-     //console.log(data.beginDay)
-     
-     startDays[i] = data.startDay
-     endDays[i] = data.endDay
-     i++
-  })
-i = 0
-let stakesExpanded = []
 
-data.dailyDataUpdates.map((data) => {
- // console.log(data.stakeTShares)
-    //console.log(startDays[i])
-  if(startDays[i] > 0)
-  {
-    stakesExpanded[i] = [ startDays[i], endDays[i] ]
-
+  function multiDimensionalUnique(arr) {
+    var uniques = [];
+    var itemsFound = {};
+    for(var i = 0, l = arr.length; i < l; i++) {
+        var stringified = JSON.stringify(arr[i]);
+        if(itemsFound[stringified]) { continue; }
+        uniques.push(arr[i]);
+        itemsFound[stringified] = true;
+    }
+    return uniques;
   }
-  i++
 
- })
+
+
+  let allStakes = multiDimensionalUnique(starts);
+  let dailyInfo = multiDimensionalUnique(daily);
+/* 
+  console.log(dailyInfo[2][2])
+  console.log(dailyInfo.length)
+ */
+  var i, j, entry
+
+
+i=0;
+
+while(i < starts.length) {
+ // console.log(starts[i][4])
+ //console.log(starts[i][0]);
+  userActivity.id[i] = starts[i][0];
+  userActivity.startDay[i] = starts[i][4];
+  userActivity.endDay[i] = starts[i][5];
+  userActivity.stakedTshares[i] = starts[i][3];
+/*   while(j < userActivity[i].endDay) */
+
+
+
+  i++;
+} 
+
+//console.log(dailyInfo.length)
+
+
+
+i = 0;
+
+var another = new Number;
+
+while (i < dailyInfo.length)
+{
+  another[i] = dailyInfo[i++][1];
+}
+i = 0;
+console.log(starts.length)
+userActivity.stakeCounter = starts.length
+while(i < starts.length)
+{
+
+  userActivity.data.tsharesArray[i]= another;
+  userActivity.stakeCounter = userActivity.stakeCounter++;
+  i++
+}
+
+
+
+
+var another1 = [];
+var j, h , r = 0
+i=0;
+
+while (i < userActivity.stakeCounter){
+/*   console.log(userActivity.startDay[i])
+  console.log(userActivity.endDay[i])
+  console.log(userActivity.stakedTshares[i]) */
+j = userActivity.startDay[i] 
+h = userActivity.endDay[i]
+r = userActivity.stakedTshares[i]
+/* console.log("start day : " + j)
+console.log("end day : " + h) */
+  while (j<h){
+/*     if(another1[j] == userActivity.stakedTshares[i])
+    {
+
+    } */
+/*     console.log(userActivity.data.tsharesArray[i][j])
+    console.log(another[j]) */
+    //debugger
  
- i = 0
- let lengthOfStakes = []
- 
- let earningsFromStakes = []
- /*
- while (totalAccountTSharePayout[i][1] <= totalAccountTSharePayout[i][2])
+    console.log(another1[j])
+    if (graph[i] === undefined) {
+      graph[i] = {}
+  };
+    if(another1[j]>0)
+    { 
+      debugger;
+    graph[i][j] = another1[j] = another1[j] + r * Number(userActivity.data.tsharesArray[i][j])
+    }else{
+      another1[j] =  r * Number(userActivity.data.tsharesArray[i][j])
+    }
+    //
+
+ if(j < props.currentDay - 1)
  {
-   if (totalAccountTSharePayout[i][1] ===
+ plotArrayX[j] = another1[j]
+
  }
-*/
-//console.log(stakesExpanded)
-   // totalAccountTShare = parseFloat(data.payoutPerTShare) * parseFloat(starts[i])
-   data.stakeStarts.map((data) => {
-   // console.log("END DAY: " + data.endDay + " COMPARED : " + stakesExpanded[i][1])
-   // console.log("START DAY: " + data.startDay + " COMPARED : " + stakesExpanded[i][0])
-    
-    if(stakesExpanded[i][1] === data.endDay && stakesExpanded[i][0] === data.startDay)
-    {
-      lengthOfStakes[i] =  stakesExpanded[i][1] - stakesExpanded[i][0] 
-    }
+ j++;
+  }
+i++;
+}
+i = 0;
 
-    i++
- })
- i = 0
 
-  console.log(stakePayout)
-i = 0
- while (i < lengthOfStakes.length)
+while(i < props.currentDay)
 {
-  t = stakesExpanded[i][0] 
-  while(t <= stakesExpanded[i][0] )
-  {
-   /* if(t === stakesExpanded[i][0] )
-    {
-      console.log("SPIT THIS")
-    }
-    if(t === daily.length)
-    {
-      console.log("SPIT THat")
-      t = stakesExpanded[i][0]
-    }
-  */ 
-  console.log("LENGTH OF STAKE " + lengthOfStakes[i])
-
-   //console.log("DAILY " + endDays[t])
-   // console.log("STAKES EXPANDED: "+ stakesExpanded[t][1])
-   //console.log(t)
-
-  //  console.log(earningFromStakes.length)
-  //  console.log(daily.length)
-    //earningFromStakes[i] = [daily[t][1], daily[t][0], daily[t][2]]
-    earningFromStakes[i] = [i ,lengthOfStakes[i],stakesExpanded[i][0]]
-    t++
-  }
-  t=0
-  i++
- }
- i = 0
- t = 0
- //  stakePayout[i] = [data.endDay,data.payoutPerTShare]
-while (i < earningFromStakes.length)
+if(plotArrayX[i] == undefined)
 {
- // console.log(" Stake Payout = " + stakePayout[i][0] + " Earning From Stake Variable " + earningFromStakes[t][2])
+  plotArrayX[i] = 0
+  i++
+}
+i++;
+}
+console.log(graph)
 
-  //if end day equals 
+//console.log(another)
+/* 
+i = 0;
+var ref = []
+var another1 = new Number()
 
-  if(earningFromStakes[i][2].toString() > 0)
+while (i < starts.length)
+{
+
+  j = userActivity.startDay[i];
+  while(j < dailyInfo.length)
   {
-    t = earningFromStakes[i][2]
-    console.log(props.currentDay)
-    while(t < props.currentDay)
+debugger;
+
+    if((starts[i][3] == ref[j] || userActivity.stakedTshares[i] == ref[j]) || (ref.includes(starts[i][3])))
     {
-    //console.log(stakePayout[i][2])
-    console.log("execute math")
-    t++
+     // console.log(ref) 
+      userActivity.stakedTshares[i] = 0
+     j++;
     }
-
+    //if start day is less than end day
+    if(j < starts[i][5])
+    {
+     another1[j] = starts[i][3]
+     userActivity.stakedTshares[i] =starts[i][3]
+      j++;
+    }
+    j++;
+    ref[j] = starts[i][3]
+    userActivity.stakedTshares[i] =starts[i][3]
   }
-  i++
+i++;
 }
 
+console.log(another1)
+ */
+/* 
+write the array into the userActivity structure for the loop that takes in
+ daily info length and displays daily info tshare for each of those days */
 
 
 
-
-
-
-
-
-  console.log(earningFromStakes)
- 
-//console.log(totalAccountTSharePayout)
-
- }
-
-let s = 0
-let item1 = []
-function strip20(number) {
-  return (parseFloat(number).toPrecision(20));
-}
-function strip12(number) {
-  return (parseFloat(number).toPrecision(12));
-}
-//let string = (starts[0][0]).toString()
-i = 0
-let array = []
-let output = []
-
-
-  while (i < totalAccountTSharePayout.length)
-  {
- output =  <Plot
-  data={[
-  {
-    y: totalAccountTSharePayout[i][1],
-  //  x: totalAccountTSharePayout,
-    type: 'scatter',
-    mode: 'markers',
-    marker: {color: 'blue'},
-  },
-  
-  ]}
-  layout={{width: 1000, height: 500, title: 'TESTING'}}
-  />
-  i++
-  }
-
-console.log(output)
-s=0
  return(
+  
   <div>
     
 
@@ -226,7 +275,8 @@ s=0
 <Plot
 data={[
 {
-  y: earningFromStakes,
+
+  y: plotArrayX,
   type: 'scatter',
   mode: 'markers+lines',
   marker: {color: 'blue'},
