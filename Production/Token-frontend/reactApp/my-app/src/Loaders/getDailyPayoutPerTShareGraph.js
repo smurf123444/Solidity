@@ -1,8 +1,9 @@
 import React, {} from "react";
+import Web3 from 'web3'
 import { useQuery, gql } from "@apollo/client";
 import {xfLobbyDailyData} from "../Querys/Queries";
 import Table from 'react-bootstrap/Table';
-//import Plot from 'react-plotly.js';
+import Plot from 'react-plotly.js';
 import '../TransformLobby/styles.css';  
 import moment from 'moment';
 moment().format();
@@ -20,50 +21,94 @@ export const GetPayoutDailyDataGraph = (props) => {
   
   
   data.dailyDataUpdates.map((data) => {
+    
     tits[i] = [data.beginDay, data.payoutPerTShare, data.endDay, data.lobbyEth, data.lobbyHexPerEth,data.lobbyHexAvailable, data.shares, data.payout]
    i++
    })
  }
 
-let s = 0
-let item1 = []
-function strip20(number) {
-  return (parseFloat(number).toPrecision(20));
+i = 0;
+function multiDimensionalUnique(arr) {
+  var uniques = [];
+  var itemsFound = {};
+  for(var i = 0, l = arr.length; i < l; i++) {
+      var stringified = JSON.stringify(arr[i]);
+      if(itemsFound[stringified]) { continue; }
+      uniques.push(arr[i]);
+      itemsFound[stringified] = true;
+  }
+  return uniques;
 }
-function strip12(number) {
-return (parseFloat(number).toPrecision(12));
-}
-let string = (tits[0][0]).toString()
+
+/* while (i < ass.length){
+console.log("Ass length: " + ass.length)
+console.log("beginDay:  " + ass[i][0]);
+console.log("payoutPerTShare " + ass[i][1]);
+console.log("endDay " + ass[i][2]);
+console.log("lobbyEth " + ass[i][3]);
+console.log("lobbyHexPerEth " + ass[i][4]);
+console.log("lobbyHexAvailable " + ass[i][5]);
+console.log("shares: "+ ass[i][6]);
+console.log("payout " + ass[i][7]); 
+i++;
+} */
 i = 0
-let array = []
-while (i < tits.length)
+let xPayout = []
+let yPayout = []
+let xlobbyHexAvailable = []
+let ylobbyHexAvailable = []
+let ass = multiDimensionalUnique(tits);
+while(i < ass.length)
 {
-  array[i] = (
-      tits[i][1]
-   )
-i++
-
+xPayout[i] = ass[i][0];
+yPayout[i] = ass[i][1];
+/* console.log(ass.length);
+console.log("xPayout : " + xPayout)
+console.log("yPayout : " + yPayout) */
+i++;
+}
+i = 0;
+while(i < ass.length)
+{
+  xlobbyHexAvailable[i] = ass[i][0];
+  ylobbyHexAvailable[i] = ass[i][5];
+/* console.log(ass.length);
+console.log("xlobbyHexAvailable : " + xlobbyHexAvailable)
+console.log("ylobbyHexAvailable : " + ylobbyHexAvailable) */
+i++;
 }
 
-s=0
- return(
-  <div>
-    
 
-{/* <Plot
+return(
+  <div>
+{ <Plot
 data={[
 {
-  y: array,
+x: xPayout,
+y: yPayout,
   type: 'scatter',
-  mode: 'markers',
+  mode: 'lines+markers',
   marker: {color: 'red'},
 },
 
 ]}
 layout={{width: 1000, height: 500, title: 'Global Daily Payout per T-SHARE'}}
-/> */}
+/> }
+{ <Plot
+data={[
+{
+x: xlobbyHexAvailable,
+y: ylobbyHexAvailable,
+  type: 'scatter',
+  mode: 'lines+markers',
+  marker: {color: 'red'},
+},
+
+]}
+layout={{width: 1000, height: 500, title: 'lobbyHexAvailable'}}
+/> }
 </div>
+
 )
 }
-
 export default GetPayoutDailyDataGraph;
