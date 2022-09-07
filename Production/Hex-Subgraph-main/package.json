@@ -4,7 +4,7 @@
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ Codeakk/Hex",
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ smurf123444/Decentralife",
     "create-local": "graph create --node http://localhost:8020/ Codeakk/Hex",
     "remove-local": "graph remove --node http://localhost:8020/ Codeakk/Hex",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 Codeakk/Hex"

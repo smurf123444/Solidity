@@ -3,8 +3,8 @@ import { useQuery, gql } from "@apollo/client";
 import { xfEnterAndExitWithAccount, xfExitWithAccount, stakeStartAndEndWithAccount} from "../Querys/Queries";
 import Table from 'react-bootstrap/Table';
 import Web3 from 'web3'
-import '../TransformLobby/styles.css';  
-import Popup from '../TransformLobby/PopupXf';
+import '../TransformLobbyOld/styles.css';  
+import Popup from '../TransformLobbyOld/PopupXf';
 import moment from 'moment';
 moment().format();
 function strip4(number) {
@@ -39,7 +39,7 @@ export const GetStakeCompStartAndEnd = (props) => {
  return(
   <>
   <div>
-    <Table striped bordered hover size="dark">
+    <Table striped bordeless hover size="sm">
         <thead>
           <tr>
             <td>
@@ -56,6 +56,8 @@ export const GetStakeCompStartAndEnd = (props) => {
             </td>
             <td>
               Exit Available on Day:
+            </td>   <td>
+              END STAKE:
             </td>
           </tr>
         </thead>

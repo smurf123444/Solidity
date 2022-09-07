@@ -5,12 +5,12 @@ import { toast } from "react-toastify";
 import GetXfCompEntersAndExit from './Loaders/getXfCompEntersAndExit'
 import GetXfExits from './Loaders/getXfExits'
 import GetXfLobbyDailyDataList from './Loaders/getXfLobbyDailyDataList'
-//import GetAccountDailyDataGraph from './Loaders/getAccountDailyPayoutGraph'
+import GetAccountDailyDataGraph from './Loaders/getAccountDailyPayoutGraph'
 import GetPayoutDailyDataGraph from './Loaders/getDailyPayoutPerTShareGraph'
 import GetStakeEnd from './Loaders/getStakeEnd'
 import { Button, Navbar, Nav, NavDropdown, Image, FormControl, Card, CardColumns, CardGroup, Row, Container, Col, Modal} from 'react-bootstrap';
 import GetStakeCompStartAndEnd from './Loaders/getStakeCompStartAndEnd'
-
+import Collapse from 'react-bootstrap/Collapse'; 
 import {
   BrowserRouter as Router,
   Switch,
@@ -69,7 +69,7 @@ xfLobbyExits(where: {memberAddr: "0x5bc8bf5a75d221ff30b2c2b2a7235d6aeeff4a84"}){
 }
 
 THIS IS FOR FINDING THE 
-1. RAW ETH AMOUNT INPUT FOR XFDAY
+1. RAW ETH AMOUNT INPUT FOR XFDAY for Personal Wallet (Transform)
 2. THE DAY IT SELF.
     xfLobbyEnters(where: {memberAddr: "0x5bc8bf5a75d221ff30b2c2b2a7235d6aeeff4a84"}){
   id
@@ -98,7 +98,7 @@ THIS IS FOR FINDING
   }
 
 THIS IS FOR FINDING
-1.servedDays 
+1. ServedDays 
 2. penalty paid
 3. Stake Payout.
 {
@@ -117,11 +117,11 @@ THIS IS FOR FINDING
   }
 }
 THIS IS FOR FINDING
-1. Available HEx for day
-2. Hex per Eth calculation
-3. Total ETH in lobby
-4. Payout per tshare (for calculating daily rewards)
-5. day for which this information is valid.
+1. Available HEx for day (Transform)
+2. Hex per Eth calculation (Transform)
+3. Total ETH in lobby (Transform)
+4. Payout per tshare (for calculating daily rewards) (Stake)
+5. day for which this information is valid. (Transform & Stake)
  dailyDataUpdates(orderDirection:desc)
   {
     beginDay
@@ -143,24 +143,14 @@ class App extends Component {
     super(props)
     this.state = {
       account: '0x0',
-      progressValue: 0,
-      totalEthByDay: [],
-      dappToken: {},
       globals:[],
       dappTokenBalance: '0',
-      burned: '0',
-      dailyDataUpdate: [],
+    
       currentDay: '0',
       day: '0',
       tokenFarm: {},
-      totalEthXL: '0',
-      hexToEth: '0',
-      yourHex:'0',
-      yourEth: '0',
-      yourExitButton: '0',
-      yourEnterButton: '0',
-      yourButtonDay: '0',
-      yourAddress:'0x0',
+
+
       xfLobbyMembers: '0',
       totalSupply: '0',
       initSupply: '0',
@@ -170,7 +160,7 @@ class App extends Component {
       showPopup: false 
       };
     this.exitDay = this.exitDay.bind(this);
-    this.web3 = new Web3(new Web3.providers.HttpProvider('https://rinkeby.infura.io/v3/885661b2ff2f4167b4c6570a07306408'));
+    this.web3 = new Web3(new Web3.providers.HttpProvider('https://mainnet.infura.io/v3/e272d9d07a2e489d94cee678fede6768'));
   }
   togglePopup() {  
     this.setState({  
@@ -183,24 +173,24 @@ class App extends Component {
   async componentWillMount() {
     await this.loadWeb3()
     await this.loadBlockchainData()
-    await this.initiate()
+    //await this.initiate()
   }
 
   async loadBlockchainData() {
 
-
+//0x2e49E2B3FeBf5D64010D65E020729ec4228eC397
     const web3 = window.web3
 
     const accounts = await web3.eth.getAccounts()
     this.setState({ account: accounts[0] })
  
-    const tokenFarm = new web3.eth.Contract(TokenFarm, '0x7BC95158eebAA2A48f6F8eeEad8Aa162996594bD')
+    const tokenFarm = new web3.eth.Contract(TokenFarm, '0x2b591e99afE9f32eAA6214f7B7629768c40Eeb39')
     this.setState({ tokenFarm })
 
 
  // Load State Variables.
       let personalBalance = await tokenFarm.methods.balanceOf(this.state.account).call()
-      this.setState({ dappTokenBalance:  (personalBalance / 100000000)})
+      this.setState({ dappTokenBalance:  (Web3.utils.fromWei(personalBalance,"gwei") * 10)})
 
       let day = await tokenFarm.methods.currentDay().call()
       this.setState({ currentDay:  day})
@@ -277,11 +267,28 @@ class App extends Component {
     })
   }
   transfer = (amount, day) => {
+ 
     this.setState({ loading: false })
     //    this.state.tokenFarm.methods.approve(this.state.tokenFarm._address, amount).send({ from: this.state.account }).on('transactionHash', (hash) => {
-          this.state.tokenFarm.methods.transfer(amount, day).send({ from: this.state.account }).on('confirmation', (hash) => {
+          this.state.tokenFarm.methods.transfer(amount, day).send({ from: this.state.account })
+          .on('confirmation', (hash) => {
             this.setState({ loading: true })
-          })
+          }).on("transactionHash", function () {
+            console.log("Hash")
+            this.setState({ loading: true })
+        })
+        .on("receipt", function () {
+            console.log("Receipt");
+            this.setState({ loading: true })
+        })
+        .on("confirmation", function () {
+            console.log("Confirmed");
+            this.setState({ loading: true })
+        })
+        .on("error", async function () {
+            console.log("Error");
+            this.setState({ loading: true })
+        });
      //   })
       }
 
@@ -289,37 +296,114 @@ class App extends Component {
   stakeTokens = (amount, day) => {
     this.setState({loading: false})
     //    this.state.tokenFarm.methods.approve(this.state.tokenFarm._address, amount).send({ from: this.state.account }).on('transactionHash', (hash) => {
-          this.state.tokenFarm.methods.stakeStart(amount, day).send({ from: this.state.account }).on('confirmation', (hash) => {
+          this.state.tokenFarm.methods.stakeStart(amount, day).send({ from: this.state.account })
+          .on('confirmation', (hash) => {
             this.setState({ loading: true })
-           // console.log(hash)
-          })
-     //   })
-      }
+          }).on("transactionHash", (hash) => {
+            console.log("Hash")
+            this.setState({ loading: true })
+        })
+        .on("receipt", (hash) => {
+            console.log("Receipt");
+            this.setState({ loading: true })
+        })
+        .on("confirmation", (hash) => {
+            console.log("Confirmed");
+            this.setState({ loading: true })
+        })
+        .on("error", (hash) => {
+            console.log("Error");
+            this.setState({ loading: true })
+        });
+        
+        
+        }
 
 
   unstakeTokens = (stakeIDparam, stakeID) => {
     this.setState({loading: false})
    // console.log('stakeIdparam',stakeIDparam,'stakeId',stakeID)
-    this.state.tokenFarm.methods.stakeEnd(stakeIDparam, stakeID).send({ from: this.state.account }).on('confirmation', (hash) => {
+    this.state.tokenFarm.methods.stakeEnd(stakeIDparam, stakeID).send({ from: this.state.account })
+    .on('confirmation', (hash) => {
       this.setState({ loading: true })
       this.setState({ showPopup: false })
     })
+    .on("transactionHash", (hash) => {
+      console.log("Hash")
+      this.setState({ loading: true })
+      this.setState({ showPopup: false})
+  })
+  .on("receipt", (hash) => {
+      console.log("Receipt");
+      this.setState({ loading: true })
+      this.setState({ showPopup: false})
+  })
+  .on("confirmation", (hash) => {
+      console.log("Confirmed");
+      this.setState({ loading: true })
+      this.setState({ showPopup: false})
+  })
+  .on("error", (hash) => {
+      console.log("Error");
+      this.setState({ loading: true })
+      this.setState({ showPopup: false})
+  });
+  
   }
-//!!!!!!
+
   exitDay = (day) => {
     this.setState({ loading: false })
-    //console.log('Came to ExitDay Function and DAY is ', day);
 
-    this.state.tokenFarm.methods.xfLobbyExit(day ,'0').send({ from: this.state.account }).on('confirmation', (hash) => {
+
+    this.state.tokenFarm.methods.xfLobbyExit(day ,'0').send({ from: this.state.account })
+    .on('confirmation', (hash) => {
       this.setState({ loading: true })
+
     })
+    .on("transactionHash", (hash) => {
+      console.log("Hash")
+      this.setState({ loading: true })
+
+  })
+  .on("receipt", (hash) => {
+      console.log("Receipt");
+      this.setState({ loading: true })
+
+  })
+  .on("confirmation", (hash) => {
+      console.log("Confirmed");
+      this.setState({ loading: true })
+
+  })
+  .on("error", (hash) => {
+      console.log("Error");
+      this.setState({ loading: true })
+
+  });
   }
 
   enterDay = (value) => {
     this.setState({ loading: false })
-    this.state.tokenFarm.methods.xfLobbyEnter(this.state.account).send({ from: this.state.account, value: value}).on('confirmation', (hash) => {
+    this.state.tokenFarm.methods.xfLobbyEnter(this.state.account).send({ from: this.state.account, value: value})
+    .on('confirmation', (hash) => {
       this.setState({ loading: true })
     })
+    .on("transactionHash", (hash) => {
+      console.log("Hash")
+      this.setState({ loading: true })
+  })
+  .on("receipt", (hash) => {
+      console.log("Receipt");
+      this.setState({ loading: true })
+  })
+  .on("confirmation", (hash) => {
+      console.log("Confirmed");
+      this.setState({ loading: true })
+  })
+  .on("error", (hash) => {
+      console.log("Error");
+      this.setState({ loading: true })
+  });
   }
 
   getPopup = (input1, input2) => {
@@ -329,20 +413,13 @@ class App extends Component {
 
   render() {
     
-    const { account, dappToken, progressValue, burned, currentDay, shareRate, globals, totalEthByDay, lockedHearts, dailyDataUpdate, totalEthXL, hexToEth, yourHex, yourEth, yourExitButton, yourAddress, yourEnterButton, totalSupply, initSupply, xfLobbyMembers, loading} = this.state;
+    const { account, currentDay, shareRate, globals,  totalSupply, initSupply, xfLobbyMembers, loading} = this.state;
 
-    let initSupply_ = Web3.utils.fromWei(initSupply, "Gwei")
-    let totalSupply_ = Web3.utils.fromWei(totalSupply, "Gwei")
 
-    function strip4(number) {
-      return (parseFloat(number).toPrecision(4));
-  }
   function strip8(number) {
     return (parseFloat(number).toPrecision(8));
 }
-  function strip12(number) {
-    return (parseFloat(number).toPrecision(12));
-}
+
 const errorLink = onError(({ graphqlErrors, networkError }) => {
   if (graphqlErrors) {
     graphqlErrors.map(({ message, location, path }) => {
@@ -355,7 +432,7 @@ const errorLink = onError(({ graphqlErrors, networkError }) => {
 //https://api.thegraph.com/subgraphs/name/codeakk/hex
 const link = from([
   errorLink,
-  new HttpLink({ uri: "https://api.thegraph.com/subgraphs/name/smurf123444/decentralife" }),
+  new HttpLink({ uri: "https://api.thegraph.com/subgraphs/name/codeakk/hex"}),
 ]);
 
 const client = new ApolloClient({
@@ -442,7 +519,7 @@ const client = new ApolloClient({
       </ApolloProvider>
     }
 
-/*     let accountDailyDataGraph
+   let accountDailyDataGraph
     if(!this.state.loading) {
       accountDailyDataGraph = <p id="loader" className="text-center">Loading...</p>
     } else {
@@ -450,7 +527,7 @@ const client = new ApolloClient({
       <ApolloProvider client={client}>
         <GetAccountDailyDataGraph account={this.state.account} currentDay={this.state.currentDay}/>
       </ApolloProvider>
-    } */
+    } 
 
     let transform
     if(!this.state.loading) {
@@ -467,7 +544,7 @@ const client = new ApolloClient({
       
       />
     }
-
+    //const [open, setOpen] = useState(false);
     return (
       <div>
         <body>
@@ -475,7 +552,7 @@ const client = new ApolloClient({
         <div>
     <nav>
       <Navbar  bg="dark" variant="dark">
-  <Navbar.Brand href="#home">Decentralife</Navbar.Brand>
+  <Navbar.Brand href="#home"><img src={require('./Loaders/HEXagon.png')} style={{width: 45, height: 37}}></img>&nbsp;HEX</Navbar.Brand>
   <Navbar.Toggle aria-controls="basic-navbar-nav" />
   <Navbar.Collapse id="basic-navbar-nav">
     <Nav className="mr-auto">
@@ -483,9 +560,10 @@ const client = new ApolloClient({
       <Nav.Link href="https://decentralife.medium.com/decentralife-token-846cfd424901">Info</Nav.Link>
       <NavDropdown title="Solutions" id="basic-nav-dropdown">
         <NavDropdown.Item as={Link} to="/stake">Stake</NavDropdown.Item>
-        <NavDropdown.Item as={Link} to="/transfer">Transfer</NavDropdown.Item>
-        <NavDropdown.Item as={Link} to="/transform">transform</NavDropdown.Item>
+        <NavDropdown.Item as={Link} to="/stats">Stats</NavDropdown.Item>
+{/*         <NavDropdown.Item as={Link} to="/transform">Transform</NavDropdown.Item> */}
         <NavDropdown.Divider />
+        <NavDropdown.Item as={Link} to="/transfer">Transfer</NavDropdown.Item>
         <NavDropdown.Item href="#action/3.4">Trade</NavDropdown.Item>
       </NavDropdown>
     </Nav>
@@ -501,30 +579,80 @@ const client = new ApolloClient({
     </nav>
     </div>
               <Switch>
+              <Route path="/stats">
+                <center>
+                <br></br> 
+                  <h1 style={{color:'white'}}> Account: {account}</h1>    
+                  <br></br> 
+                  <h1 style={{color:'white'}}>Total&nbsp;<img src={require('./Loaders/HEXagon.png')} style={{width: 45, height: 37}}></img>&nbsp;Circulating Supply : {Web3.utils.fromWei(totalSupply,"gwei") * 10}</h1>  <br></br> 
+        
+           <h1 style={{color:'white'}}>  Current&nbsp;<img src={require('./Loaders/HEXagon.png')} style={{width: 45, height: 37}}></img>&nbsp;Balance:   {this.state.dappTokenBalance}</h1>
+           </center>
+              {dailyDataGraph}
+              {accountDailyDataGraph} 
+             
+                </Route>
           <Route path="/stake">
-          <div>
+{/*           <Button
+        onClick={() => setOpen(!open)}
+        aria-controls="example-collapse-text"
+        aria-expanded={open}
+      >
+        click
+      </Button>
 
+
+        <Collapse in={open} dimension="width">
+          <div id="example-collapse-text">
+            <Card body style={{ width: '400px' }}>
+              Anim pariatur cliche reprehenderit, enim eiusmod high life
+              accusamus terry richardson ad squid. Nihil anim keffiyeh
+              helvetica, craft beer labore wes anderson cred nesciunt sapiente
+              ea proident.
+            </Card>
           </div>
+          
+        </Collapse> */}
             {this.stakeCount}
-            <CardColumns ></CardColumns>
+<br></br>
 <CardColumns >
-  <Card style={{ backgroundColor: '#3a3a3a', color: 'white'}}>
-  {content} 
-  </Card>
-  <Card style={{ backgroundColor: '#3a3a3a', color: 'white'}}>
-  <Card.Body>
-    <Card.Text>
-      <small className="text-muted"> Share Rate: &nbsp; </small>
-      <medium> {strip8(shareRate / 100000)} </medium>
-      </Card.Text>
-    </Card.Body>
-  </Card>
-</CardColumns>
-<CardColumns>
 
-<Card style={{ width: '100vw', height: 'auto', margin: 'auto', marginTop: '0.05vh', backgroundColor: '#3a3a3a', color: 'white'}}>
-  <Card.Header as="h5">Stakes Info</Card.Header>
-  <Card.Body>
+  <br></br>
+  <center>
+  <Card style={{ 
+    backgroundColor: 'transparent', 
+    color: 'white',
+    width: "35rem",
+    top: "1rem",
+    bottom:"20rem"  }}>
+        {content} 
+        </Card>
+
+
+<br></br>
+    <Card style={{ 
+    backgroundColor: '#3a3a3a', 
+    color: 'white',
+    width: "35rem",
+    height: ""  }}>
+        <Card.Body >
+          <Card.Text>
+      <small style={{color:'white'}}> Share Rate: &nbsp; </small>
+      <medium> {strip8(shareRate)/10}&nbsp;&nbsp;<img src={require('./Loaders/HEXagon.png')} style={{width: 20, height: 17}}></img>&nbsp; / &nbsp;1 T-SHARE</medium>
+      </Card.Text>
+
+    </Card.Body>
+
+        </Card>
+
+
+  <br></br>
+
+  <Card style={{ 
+    backgroundColor: '#transparent', 
+
+    width: "80rem" }}>
+            <Card.Header as="h5">Stakes Info</Card.Header>
     <Card.Title>Current Stakes</Card.Title>
     <Card.Text>
       New stakes that are not finished or are ready to be claimed.
@@ -536,8 +664,9 @@ const client = new ApolloClient({
     </Card.Text>
     {stakeEnds}
 
-  </Card.Body>
-</Card>
+  </Card>
+  </center>
+  <br></br>
 </CardColumns>
             <main role="main" className="col-lg-12 " style={{ maxWidth: '600px' }}>                 
             </main>
@@ -546,22 +675,21 @@ const client = new ApolloClient({
             </div>
           </Route>
           <Route path="/transform">
-          {/* xfTable */}
           {transform}
                </Route>
           <Route path="/" exact>
           <Container>
-  <Row xs={2} md={4} lg={6}>
+
   <Image src="https://i.imgur.com/UoMFVsj.jpg" fluid />
-  </Row>
-  <Row xs={1} md={2}>
+
+ 
     <Col>    <div style={{color:"white"}}>
             <h1 >Welcome to Hex frontend</h1>
              <p>Certificate of Deposit on the Blockchain.</p>
             </div></Col>
             <Col> <h1>{/* <Wallet / >*/}</h1></Col>
     
-  </Row>
+
   <Card>
 <div className="footer">
     <p>HEX Token </p>
@@ -587,6 +715,7 @@ const client = new ApolloClient({
                 <span className="float-right text-muted">
                   Balance: {this.state.dappTokenBalance}
                 </span>
+                &nbsp;&nbsp;<img src={require('./Loaders/HEXagon.png')} style={{width: 20, height: 17}}></img> 
               </div>
               <div className="input-group mb-4">
                 <input

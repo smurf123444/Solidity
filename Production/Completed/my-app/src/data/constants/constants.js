@@ -1,4 +1,4 @@
 //Token Address
-export const GDAOAddress = "0x827c0E8121a53370B2054bDf639bd8E31f088375";
+export const GDAOAddress = "0x6A09Db44358e913a439BfF5286Df187Cd32661cc";
 //MerkleDistributor Address
-export const rewardPoolAddress = "0x827c0E8121a53370B2054bDf639bd8E31f088375";
+export const rewardPoolAddress = "0x6A09Db44358e913a439BfF5286Df187Cd32661cc";

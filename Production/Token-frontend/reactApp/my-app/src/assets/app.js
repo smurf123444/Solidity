@@ -26,7 +26,7 @@ async function checkYFIPrice() {
             var myYFI = parseFloat(tokenDayDatas.priceUSD)
             myYFI = myYFI.toPrecision(4)    
             myYFI = Math.ceil(myYFI)
-           //console.log("inside func", myETH)
+           //console.log("inside func", myYFI)
            YFIPriceArray.push(myYFI)
           }
         })

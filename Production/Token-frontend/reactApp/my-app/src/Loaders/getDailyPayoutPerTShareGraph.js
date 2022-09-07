@@ -4,7 +4,7 @@ import { useQuery, gql } from "@apollo/client";
 import {xfLobbyDailyData} from "../Querys/Queries";
 import Table from 'react-bootstrap/Table';
 import Plot from 'react-plotly.js';
-import '../TransformLobby/styles.css';  
+import '../TransformLobbyOld/styles.css';  
 import moment from 'moment';
 moment().format();
 var BigNumber = require('big-number');
@@ -77,36 +77,32 @@ console.log("xlobbyHexAvailable : " + xlobbyHexAvailable)
 console.log("ylobbyHexAvailable : " + ylobbyHexAvailable) */
 i++;
 }
+let plot = <Plot
+data={[
+{
+y: yPayout,
+  type: 'scatter',
+  mode: 'markers',
+  marker: {color: 'cyan'},
+},
 
+]}
+layout={{
+  font:{
+    family: 'Arial',
+    size: 12,
+    color: 'rgb(255,255,255)'
+  },
+  paper_bgcolor: 'rgba(0,0,0,0)',
+  plot_bgcolor: 'rgba(0,0,0,0)',
+  width: 1000, height: 500, title: 'Total Payout Per T-Share'}}
+/> 
 
 return(
   <div>
-{ <Plot
-data={[
-{
-x: xPayout,
-y: yPayout,
-  type: 'scatter',
-  mode: 'lines+markers',
-  marker: {color: 'red'},
-},
 
-]}
-layout={{width: 1000, height: 500, title: 'Global Daily Payout per T-SHARE'}}
-/> }
-{ <Plot
-data={[
-{
-x: xlobbyHexAvailable,
-y: ylobbyHexAvailable,
-  type: 'scatter',
-  mode: 'lines+markers',
-  marker: {color: 'red'},
-},
+    <center>{plot}</center>
 
-]}
-layout={{width: 1000, height: 500, title: 'lobbyHexAvailable'}}
-/> }
 </div>
 
 )

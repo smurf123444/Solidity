@@ -1,8 +1,9 @@
 import React, {} from "react";
+import Web3 from 'web3'
 import { useQuery, gql } from "@apollo/client";
 import {xfLobbyDailyData} from "../Querys/Queries";
 import Table from 'react-bootstrap/Table';
-import '../TransformLobby/styles.css';  
+import '../TransformLobbyOld/styles.css';  
 import moment from 'moment';
 moment().format();
 var BigNumber = require('big-number');
@@ -47,9 +48,9 @@ while (i < tits.length)
 
    <td> {/*lobbyEth*/tits[i][3] }</td>
    <td> {/*lobbyHexPerEth*/parseInt(tits[i][4]) }</td>
-   <td> {/*lobbyHexAvailable*/BigNumber(parseInt(tits[i][5])).div(10000000).toString() }</td>
+   <td> {/*lobbyHexAvailable*/Web3.utils.fromWei(tits[i][5])}</td>
    <td> {/*shares*/tits[i][6] }</td>
-   <td> {/*payout*/BigNumber(parseInt(tits[i][7])).div(10000000).toString() }</td>
+   <td> {/*payout*/Web3.utils.fromWei(tits[i][7])}</td>
 
     </tr>
     </>

@@ -3,7 +3,7 @@ import { useQuery, gql } from "@apollo/client";
 import { xfEnterAndExitWithAccount, xfExitWithAccount} from "../Querys/Queries";
 import Table from 'react-bootstrap/Table';
 import Web3 from 'web3'
-import '../TransformLobby/styles.css';  
+import '../TransformLobbyOld/styles.css';  
 import Popup from './PopupXf';
 import moment from 'moment';
 moment().format();

@@ -30,7 +30,7 @@ export const GetStakeEnd = (props) => {
   return(
     <>
     <div>
-      <Table striped bordered hover size="dark">
+      <Table striped borderless hover size="sm">
           <thead>
             <tr>
               <td>Stake ID</td>

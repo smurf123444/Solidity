@@ -25,7 +25,7 @@ export function xfEnterAndExitWithAccount(tits){
 export function xfLobbyDailyData(){
   const LOAD_XFDAILYDATA = gql`
 {
- dailyDataUpdates(first: 500, orderBy: beginDay)
+ dailyDataUpdates(first: 1000, orderBy: beginDay)
   {
     beginDay
     payoutPerTShare
@@ -41,19 +41,13 @@ export function xfLobbyDailyData(){
   return(LOAD_XFDAILYDATA)
 }
 
-export function xfAccountDailyData(tits){
+export function xfAccountDailyData(tits, ass){
   const LOAD_XFACCOUNTDAILYDATA = gql`
 {
- dailyDataUpdates(first: 600, orderBy: beginDay)
-  {
+  dailyDataUpdates(first: 1000, orderBy: beginDay, orderDirection: asc) {
     beginDay
     payoutPerTShare
     endDay
-    lobbyEth
-    lobbyHexPerEth
-    lobbyHexAvailable
-    shares
-    payout
   }
   stakeStarts(where: {stakerAddr: "${tits}"}) {
     id

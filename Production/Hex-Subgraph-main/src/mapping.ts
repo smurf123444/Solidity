@@ -133,7 +133,7 @@ export function handleApproval(event: Approval): void {
   // example, the contract that has emitted the event can be connected to
   // with:
   //
-  //  let contract = Contract.bind(Address.fromString("0x7BC95158eebAA2A48f6F8eeEad8Aa162996594bD"));
+  //  let contract = Contract.bind(Address.fromString("0x2e49E2B3FeBf5D64010D65E020729ec4228eC397"));
   //
   // The following functions can then be called on this contract to access
   // state variables and other data:
@@ -246,7 +246,7 @@ export function handleDailyDataUpdate(event: DailyDataUpdate): void {
   _dailyDataUpdate.endDay = parsedData.getEndDay(); 
   _dailyDataUpdate.isAutoUpdate = parsedData.getIsAutoUpdate();
 
-  let hexContract = Contract.bind(Address.fromString("0x7BC95158eebAA2A48f6F8eeEad8Aa162996594bD"));
+  let hexContract = Contract.bind(Address.fromString("0x2e49E2B3FeBf5D64010D65E020729ec4228eC397"));
 
   let _beginDay = BigInt.fromI32(parsedData.getBeginDay());
   let _endDay = BigInt.fromI32(parsedData.getEndDay()); 
@@ -383,7 +383,7 @@ export function handleStakeStart(event: StakeStart): void {
   
   _stakeStart.stakeTShares = tShares; 
 
-  let hexContract = Contract.bind(Address.fromString("0x7BC95158eebAA2A48f6F8eeEad8Aa162996594bD"));
+  let hexContract = Contract.bind(Address.fromString("0x2e49E2B3FeBf5D64010D65E020729ec4228eC397"));
   let currentDay = hexContract.currentDay();
   let _currentDay = currentDay.toBigDecimal();
   let startDay = _currentDay + BigDecimal.fromString("2");
@@ -433,7 +433,7 @@ export function handleStakeEnd(event: StakeEnd): void {
   _stakeEnd.servedDays = parsedData.getServedDays();
   _stakeEnd.prevUnlocked = parsedData.getPrevUnlocked();
   
-  let hexContract = Contract.bind(Address.fromString("0x7BC95158eebAA2A48f6F8eeEad8Aa162996594bD"));
+  let hexContract = Contract.bind(Address.fromString("0x2e49E2B3FeBf5D64010D65E020729ec4228eC397"));
   
   let currentDay = hexContract.currentDay();
   let _currentDay:BigDecimal = BigDecimal.fromString(currentDay.toString());
@@ -540,7 +540,7 @@ export function handleXfLobbyEnter(event: XfLobbyEnter): void {
   _xfLobbyEnter.timestamp = parsedData.getTimestamp();
   _xfLobbyEnter.rawAmount = parsedData.getRawAmount();
 
-  let hexContract = Contract.bind(Address.fromString("0x7BC95158eebAA2A48f6F8eeEad8Aa162996594bD"));
+  let hexContract = Contract.bind(Address.fromString("0x2e49E2B3FeBf5D64010D65E020729ec4228eC397"));
   let currentDay = hexContract.currentDay();
   let _currentDay = currentDay.toBigDecimal();
   let day = _currentDay + BigDecimal.fromString("1");
@@ -602,7 +602,7 @@ export function handleTransfer(event: Transfer): void {
     _transfer = new _Transfer(id);
   }
 
-  let hexContract = Contract.bind(Address.fromString("0x7BC95158eebAA2A48f6F8eeEad8Aa162996594bD"));
+  let hexContract = Contract.bind(Address.fromString("0x2e49E2B3FeBf5D64010D65E020729ec4228eC397"));
   let currentDay = hexContract.currentDay();
 
   _transfer.numeralIndex = _metaCount.count;
@@ -640,7 +640,7 @@ function updateTokenHolder(address:Address, value: string, operator:string, even
   let currentTokenBalance = BigDecimal.fromString("0"); 
   let currentTotalSent = BigDecimal.fromString("0"); 
   let currentTotalReceived = BigDecimal.fromString("0"); 
-  let hexContract = Contract.bind(Address.fromString("0x7BC95158eebAA2A48f6F8eeEad8Aa162996594bD"));
+  let hexContract = Contract.bind(Address.fromString("0x2e49E2B3FeBf5D64010D65E020729ec4228eC397"));
   let currentDay = hexContract.currentDay();
   
   if (_tokenHolder == null) {

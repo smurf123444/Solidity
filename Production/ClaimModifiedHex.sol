@@ -636,7 +636,7 @@ contract Globals is ERC20{
     /* ERC20 constants */
     string public constant name = "FLEX";
     string public constant symbol = "FLEX";
-    uint8 public constant decimals = 8;
+    uint8 public constant decimals = 18;
 
 
     /* Stake timing parameters */

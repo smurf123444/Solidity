@@ -1,5 +1,5 @@
 import React from 'react';  
-import '../TransformLobby/styles.css';  
+import '../TransformLobbyOld/styles.css';  
 import Web3 from 'web3'
 import TokenFarm from '../assets/TokenFarm.json'
 let web3 = new Web3(new Web3.providers.HttpProvider('https://mainnet.infura.io/v3/' + '885661b2ff2f4167b4c6570a07306408'));
@@ -14,17 +14,10 @@ class PopupStakeEnd extends React.Component {
       tokenFarm: '',
       account:''
     };
-
     this.handleChange = this.handleChange.bind(this);
-    const web3 = window.web3
-    const tokenFarm = new web3.eth.Contract(TokenFarm, '0x752A2B1C0Da8E07da1a78c512A576106b57DCc23')
-    this.setState({ tokenFarm })
   }
   
-enterDay = (value) =>{
-    this.state.tokenFarm.methods.xfLobbyEnter(this.props.account).send({ from: this.props.account, value: value})
-  
-  }
+
   handleChange(event) {
     this.setState({value: event.target.value});
   }

@@ -1,12 +1,11 @@
 import React, { Component } from 'react'
 import dai from './dai.png'
-import './TransformLobby/styles.css'; 
-import PopupXf from './TransformLobby/PopupXf';
+import './TransformLobbyOld/styles.css'; 
+import PopupXf from './TransformLobbyOld/PopupXf';
 import GetXfCompEntersAndExit from './Loaders/getXfCompEntersAndExit';
 import GetXfExits from './Loaders/getXfExits'
 import TokenFarm from './assets/TokenFarm.json'
 import { toast } from "react-toastify";
-import Wallet from './metamask'
 import {
   ApolloClient,
   InMemoryCache,

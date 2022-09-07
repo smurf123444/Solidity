@@ -1,19 +1,40 @@
-import React, { Component } from 'react'
+import React, { Component, useState } from 'react'
 import dai from './dai.png'
-import './TransformLobby/styles.css';  
+import { Button, Navbar, Nav, NavDropdown, Image, FormControl, Card, CardColumns, CardGroup, Row, Container, Col, Modal} from 'react-bootstrap';
+import './TransformLobbyOld/styles.css'; 
+import Collapse from 'react-bootstrap/Collapse'; 
+
 class Main extends Component {
+  
   render() {
 
     return (
       <div id="content" className="mt-3">
+<br></br>
 
 
 
-        <div className="card mb-4" >
+      <Col className="container-lg mt-5">
+      <Card style={{ width: "30rem" }}>
+    
+        <Card.Body>
+ <center>          <Card.Title style={{color:'black'}}>STAKE HEX</Card.Title>
+          &nbsp;<img src={require('./Loaders/HEXagon.png')} style={{width: 55, height: 45}}></img> 
+   </center>
 
-          <div className="card-body" style={{border:'inset', backgroundColor: '#3a3a3a', color: 'metalic'}}>
-
-            <form className="mb-3" onSubmit={(event) => {
+          <Card.Body>
+                <div>
+                <label className="float-left" style={{color:'black'}}><b>Stake HEX Tokens</b></label>
+                <span className="float-right text-muted">
+                  <br></br>Balance: <br></br>{this.props.dappTokenBalance}
+                </span>
+                &nbsp;<img src={require('./Loaders/HEXagon.png')} style={{width: 18, height: 15}}></img> 
+                </div>
+                </Card.Body>
+          <Card.Text style={{color:'black'}}>
+            Stake Hex for ANY amount of days (between 1 - 5555) 
+          </Card.Text>
+          <form className="mb-3" onSubmit={(event) => {
                 event.preventDefault()
                 let amount
                 let day
@@ -21,14 +42,8 @@ class Main extends Component {
                 amount = amount * 100000000
                 day = this.day.value.toString()
                 this.props.stakeTokens(amount, day)
-              }}>
-              <div>
-                <label className="float-left"><b>Stake HEX Tokens</b></label>
-                <span className="float-right text-muted">
-                  Balance: {this.props.dappTokenBalance}
-                </span>
-              </div>
-              <div className="input-group mb-4">
+              }}>        
+              <div className="input-group mb-2">
                 <input
                   type="text"
                   ref={(input) => { this.input = input }}
@@ -36,10 +51,8 @@ class Main extends Component {
                   placeholder="0"
                   required />
                 <div className="input-group-append">
-                  <div className="input-group-text">
-                    
-                    HEX
-                    &nbsp;&nbsp;&nbsp; Token
+                  <div className="input-group-text">  
+                  <img src={require('./Loaders/HEXagon.png')} style={{width: 20, height: 18}}></img>  &nbsp;&nbsp;Token
                   </div>
                 </div>
               </div>
@@ -52,20 +65,21 @@ class Main extends Component {
                   className="form-control form-control-lg"
                   placeholder="0"
                   required />
-           
               </div>
               </div>
               <button type="submit" className="btn btn-secondary btn-block btn-lg">STAKE!</button>
             </form>
+        </Card.Body>
+        <Card.Footer>
+          <small className="text-muted"></small>
+        </Card.Footer>
+      </Card>
+      </Col>
 
 
-          </div>
-        </div>
-        <div>
-          
-        </div>
 
-      </div>
+
+</div>
     );
   }
 }
