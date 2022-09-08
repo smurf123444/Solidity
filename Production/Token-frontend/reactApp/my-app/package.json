@@ -4,9 +4,11 @@
   "private": true,
   "dependencies": {
     "@apollo/client": "^3.3.7",
+    "@ethersproject/contracts": "^5.7.0",
     "@openzeppelin/contracts": "^3.3.0",
     "@reduxjs/toolkit": "^1.5.0",
     "@truffle/hdwallet-provider": "^1.2.1",
+    "@uniswap/sdk": "^3.0.3",
     "apollo-cache-inmemory": "^1.6.6",
     "apollo-client": "^2.6.10",
     "apollo-link-http": "^1.5.17",

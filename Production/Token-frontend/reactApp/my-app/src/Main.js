@@ -52,7 +52,7 @@ class Main extends Component {
                   required />
                 <div className="input-group-append">
                   <div className="input-group-text">  
-                  <img src={require('./Loaders/HEXagon.png')} style={{width: 20, height: 18}}></img>  &nbsp;&nbsp;Token
+                  <img src={require('./Loaders/HEXagon.png')} style={{width: 20, height: 18}}></img>  &nbsp;Token
                   </div>
                 </div>
               </div>
@@ -70,9 +70,9 @@ class Main extends Component {
               <button type="submit" className="btn btn-secondary btn-block btn-lg">STAKE!</button>
             </form>
         </Card.Body>
-        <Card.Footer>
+{/*         <Card.Footer>
           <small className="text-muted"></small>
-        </Card.Footer>
+        </Card.Footer> */}
       </Card>
       </Col>
 

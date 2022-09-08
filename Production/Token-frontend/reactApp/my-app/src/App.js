@@ -41,8 +41,7 @@ import { onError } from "@apollo/client/link/error";
 import './App.css'
 
 import PopupStakeEnd from './Loaders/PopupStakeEnd.js'
-
-
+//import { ChainId, Token, WETH, Fetcher } from '@uniswap/sdk'
 var CanvasJSChart = CanvasJSReact.CanvasJSChart;
 //var Chart = require('chart.js');
 var bigDecimal = require('js-big-decimal');
@@ -206,6 +205,18 @@ class App extends Component {
 
       let totalSupply_ = await tokenFarm.methods.totalSupply().call()
       this.setState({ totalSupply: totalSupply_.toString()})
+
+
+/*       const DAI = new Token(ChainId.MAINNET, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 18)
+
+// note that you may want/need to handle this async code differently,
+// for example if top-level await is not an option
+const pair = await Fetcher.fetchPairData(DAI, WETH[DAI.chainId])
+
+const route = new Route([pair], WETH[DAI.chainId])
+
+console.log(route.midPrice.toSignificant(6)) // 201.306
+console.log(route.midPrice.invert().toSignificant(6)) // 0.00496756 */
   } 
 
   async loadWeb3() {
@@ -273,19 +284,19 @@ class App extends Component {
           this.state.tokenFarm.methods.transfer(amount, day).send({ from: this.state.account })
           .on('confirmation', (hash) => {
             this.setState({ loading: true })
-          }).on("transactionHash", function () {
+          }).on("transactionHash",  (hash) =>  {
             console.log("Hash")
             this.setState({ loading: true })
         })
-        .on("receipt", function () {
+        .on("receipt",  (hash) =>  {
             console.log("Receipt");
             this.setState({ loading: true })
         })
-        .on("confirmation", function () {
+        .on("confirmation",  (hash) => {
             console.log("Confirmed");
             this.setState({ loading: true })
         })
-        .on("error", async function () {
+        .on("error", (hash) => {
             console.log("Error");
             this.setState({ loading: true })
         });
@@ -544,8 +555,10 @@ const client = new ApolloClient({
       
       />
     }
+    
     //const [open, setOpen] = useState(false);
     return (
+      
       <div>
         <body>
                       <Router basename="/frontend">
@@ -581,14 +594,34 @@ const client = new ApolloClient({
               <Switch>
               <Route path="/stats">
                 <center>
-                <br></br> 
-                  <h1 style={{color:'white'}}> Account: {account}</h1>    
+              <Card style={{ 
+    backgroundColor: 'white', 
+    opacity: ".45",
+    width: "70rem" }}>
+    <center>
+            
                   <br></br> 
-                  <h1 style={{color:'white'}}>Total&nbsp;<img src={require('./Loaders/HEXagon.png')} style={{width: 45, height: 37}}></img>&nbsp;Circulating Supply : {Web3.utils.fromWei(totalSupply,"gwei") * 10}</h1>  <br></br> 
+                  <h1 style={{color:'black'}}>Total&nbsp;<img src={require('./Loaders/HEXagon.png')} style={{width: 45, height: 37}}></img>&nbsp;Circulating Supply : {Web3.utils.fromWei(totalSupply,"gwei") * 10}</h1>  <br></br> 
         
-           <h1 style={{color:'white'}}>  Current&nbsp;<img src={require('./Loaders/HEXagon.png')} style={{width: 45, height: 37}}></img>&nbsp;Balance:   {this.state.dappTokenBalance}</h1>
+
            </center>
-              {dailyDataGraph}
+        
+           </Card>
+
+  </center>
+  {dailyDataGraph}
+  <center>
+  <Card style={{ 
+    backgroundColor: '#transparent', 
+    opacity: ".45",
+    width: "70rem" }}>
+             <br></br> 
+         <h1 style={{color:'black'}}> Account: {account}</h1>   
+         <br></br>  
+         <h1 style={{color:'black'}}>  Current&nbsp;<img src={require('./Loaders/HEXagon.png')} style={{width: 45, height: 37}}></img>&nbsp;Balance:   {this.state.dappTokenBalance}</h1>
+           <br></br> 
+  </Card>
+  </center>
               {accountDailyDataGraph} 
              
                 </Route>
@@ -678,25 +711,44 @@ const client = new ApolloClient({
           {transform}
                </Route>
           <Route path="/" exact>
-          <Container>
 
-  <Image src="https://i.imgur.com/UoMFVsj.jpg" fluid />
+    <center>
 
- 
-    <Col>    <div style={{color:"white"}}>
+    <Card style={{ 
+    backgroundColor: '#3a3a3a', 
+    color: 'white',
+    width: "35rem",
+    height: ""  }}>
+
+<center>
+<Image src="https://i.imgur.com/UoMFVsj.jpg" fluid style={{width: 300, height: 300}}/>&nbsp;&nbsp;&nbsp;
+<img src={require('./Loaders/HEXagon.png')} style={{width: 200, height: 200}}></img>
+</center>
+<br></br>
+{/* <center>  <img src={require('./Loaders/HEXagon.png')} style={{width: 200, height: 200}}></img> </center> */}
+<br></br>
+</Card>
+<br></br>
+<Card style={{ 
+    backgroundColor: '#3a3a3a', 
+    color: 'white',
+    width: "35rem",
+    height: ""  }}>
+
             <h1 >Welcome to Hex frontend</h1>
              <p>Certificate of Deposit on the Blockchain.</p>
-            </div></Col>
-            <Col> <h1>{/* <Wallet / >*/}</h1></Col>
-    
+ 
+             </Card>
 
+    </center>
+<br></br>
   <Card>
 <div className="footer">
     <p>HEX Token </p>
     <p><a href="https://etherscan.io/token/0x2b591e99afe9f32eaa6214f7b7629768c40eeb39">Etherscan</a></p>
   </div>
 </Card>
-</Container>
+
           </Route>
 <Route path="/transfer" exact>
             <Card style={{ backgroundColor: '#3a3a3a', color: 'white'}}>

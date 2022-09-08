@@ -5,6 +5,7 @@ import Plot from 'react-plotly.js';
 import '../TransformLobbyOld/styles.css';  
 import moment from 'moment';
 import Web3 from 'web3'
+import {Card} from 'react-bootstrap';
 
 moment().format();
 var daily = [];
@@ -223,10 +224,19 @@ graph.forEach((item,index)=>{
 
   <div>
 <br></br>
-
-<center> <h1 style={{color: "white"}}> Total Hex Earned (from Day 1 to Day 1000): <br></br><br></br>{totalEarnedHex}  <img src={require('./HEXagon.png')} style={{width: 55, height: 50}}></img> </h1> 
+<center>
+  <Card style={{ 
+    backgroundColor: '#transparent', 
+    opacity: ".55",
+    width: "70rem" }}>
+  <br></br>
+  <center> <h1 style={{color: "black"}}> Total Hex Earned (from Day 1 to Day 1000): <br></br><br></br>{totalEarnedHex}  <img src={require('./HEXagon.png')} style={{width: 55, height: 50}}></img> </h1> 
 <br></br>
 </center>
+
+  </Card>
+  </center>
+
 
 
 <h2 style={{color: "white"}}>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Stake Stats : </h2>
