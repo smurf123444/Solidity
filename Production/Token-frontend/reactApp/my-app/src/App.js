@@ -653,10 +653,11 @@ const client = new ApolloClient({
 
   <br></br>
   <img src={require('./Loaders/lacyCLaire.png')} style={{width: 1000, height: 550, marginLeft: 320, marginTop: 70, float:'left'}} ></img> 
+
+  <div className="twerk">
   <center>
-    
   <Card style={{ 
-    backgroundColor: 'transparent', 
+    backgroundColor: 'transparent',
     color: 'white',
     width: "35rem",
     top: "1rem",
@@ -664,8 +665,8 @@ const client = new ApolloClient({
     right: "37rem"  }}>
         {content} 
         </Card>
+    </center>
 
- 
 <br></br>
     <Card style={{ 
     backgroundColor: '#3a3a3a', 
@@ -685,8 +686,8 @@ const client = new ApolloClient({
 {/*         <img src={require('./Loaders/HEXagon.png')} style={{width: 55, height: 50}}></img>  */}
 
   <br></br>
-
-{/*   <Card style={{ 
+<center>
+  <Card style={{ 
     backgroundColor: 'transparent', 
 
     width: "80rem",
@@ -703,8 +704,9 @@ const client = new ApolloClient({
     </Card.Text>
     {stakeEnds}
 
-  </Card>  */}
+  </Card> 
   </center>
+  </div>
 {/*   <img src={require('./Loaders/HEXagon.png')} style={{width: 55, height: 50}}></img>  */}
   <br></br>
 </CardColumns>

@@ -46,6 +46,7 @@
 }
 body {
   margin: 0;
+
   font-family: "Helvetica" !important;
   background: linear-gradient(
     45deg,
@@ -76,6 +77,13 @@ body {
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
+}
+
+.twerk {
+  background-color: transparent;
+  background-image:url('./Loaders/twerking1.gif');
+   background-repeat:repeat;
+   height: auto;
 }
 
 .App-link {
