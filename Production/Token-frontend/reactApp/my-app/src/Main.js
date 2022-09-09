@@ -9,20 +9,22 @@ class Main extends Component {
   render() {
 
     return (
+      
       <div id="content" className="mt-3">
+
 <br></br>
 
 
 
-      <Col className="container-lg mt-5">
-      <Card style={{ width: "30rem" }}>
+      <Col className="container-lg mt-5" >
+      <Card style={{borderStyle:'none', width: "30rem", color:'black',backgroundColor: 'transparent', boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);'}}>
     
         <Card.Body>
  <center>          <Card.Title style={{color:'black'}}>STAKE HEX</Card.Title>
           &nbsp;<img src={require('./Loaders/HEXagon.png')} style={{width: 55, height: 45}}></img> 
    </center>
 
-          <Card.Body>
+          <Card.Body tyle={{ width: "30rem", color:'black',backgroundColor: '#transparent'}}>
                 <div>
                 <label className="float-left" style={{color:'black'}}><b>Stake HEX Tokens</b></label>
                 <span className="float-right text-muted">
@@ -31,7 +33,7 @@ class Main extends Component {
                 &nbsp;<img src={require('./Loaders/HEXagon.png')} style={{width: 18, height: 15}}></img> 
                 </div>
                 </Card.Body>
-          <Card.Text style={{color:'black'}}>
+          <Card.Text style={{borderStyle:'none'}}>
             Stake Hex for ANY amount of days (between 1 - 5555) 
           </Card.Text>
           <form className="mb-3" onSubmit={(event) => {

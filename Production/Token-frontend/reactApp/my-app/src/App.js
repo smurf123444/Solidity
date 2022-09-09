@@ -646,45 +646,51 @@ const client = new ApolloClient({
           </div>
           
         </Collapse> */}
-            {this.stakeCount}
+            {/* {this.stakeCount} */}
+        
 <br></br>
 <CardColumns >
 
   <br></br>
+  <img src={require('./Loaders/lacyCLaire.png')} style={{width: 1000, height: 550, marginLeft: 320, marginTop: 70, float:'left'}} ></img> 
   <center>
+    
   <Card style={{ 
     backgroundColor: 'transparent', 
     color: 'white',
     width: "35rem",
     top: "1rem",
-    bottom:"20rem"  }}>
+    bottom:"20rem",
+    right: "37rem"  }}>
         {content} 
         </Card>
 
-
+ 
 <br></br>
     <Card style={{ 
     backgroundColor: '#3a3a3a', 
     color: 'white',
     width: "35rem",
-    height: ""  }}>
+    height: "",
+    right: "37rem"  }}>
         <Card.Body >
           <Card.Text>
       <small style={{color:'white'}}> Share Rate: &nbsp; </small>
-      <medium> {strip8(shareRate)/10}&nbsp;&nbsp;<img src={require('./Loaders/HEXagon.png')} style={{width: 20, height: 17}}></img>&nbsp; / &nbsp;1 T-SHARE</medium>
+      <medium> {strip8(shareRate)/10}&nbsp;&nbsp;<img src={require('./Loaders/HEXagon.png')} style={{width: 20, height: 17, marginLeft: 10}}></img>&nbsp; / &nbsp;1 T-SHARE</medium>
       </Card.Text>
 
     </Card.Body>
 
         </Card>
-
+{/*         <img src={require('./Loaders/HEXagon.png')} style={{width: 55, height: 50}}></img>  */}
 
   <br></br>
 
-  <Card style={{ 
-    backgroundColor: '#transparent', 
+{/*   <Card style={{ 
+    backgroundColor: 'transparent', 
 
-    width: "80rem" }}>
+    width: "80rem",
+    color: 'white'}}>
             <Card.Header as="h5">Stakes Info</Card.Header>
     <Card.Title>Current Stakes</Card.Title>
     <Card.Text>
@@ -697,8 +703,9 @@ const client = new ApolloClient({
     </Card.Text>
     {stakeEnds}
 
-  </Card>
+  </Card>  */}
   </center>
+{/*   <img src={require('./Loaders/HEXagon.png')} style={{width: 55, height: 50}}></img>  */}
   <br></br>
 </CardColumns>
             <main role="main" className="col-lg-12 " style={{ maxWidth: '600px' }}>                 
@@ -713,15 +720,16 @@ const client = new ApolloClient({
           <Route path="/" exact>
 
     <center>
-
+<br></br>
     <Card style={{ 
-    backgroundColor: '#3a3a3a', 
+    backgroundColor: 'Transparent', 
     color: 'white',
     width: "35rem",
     height: ""  }}>
-
+<br></br>
+<br></br>
 <center>
-<Image src="https://i.imgur.com/UoMFVsj.jpg" fluid style={{width: 300, height: 300}}/>&nbsp;&nbsp;&nbsp;
+{/* <Image src="https://i.imgur.com/UoMFVsj.jpg" fluid style={{width: 300, height: 300}}/> */}&nbsp;&nbsp;&nbsp;
 <img src={require('./Loaders/HEXagon.png')} style={{width: 200, height: 200}}></img>
 </center>
 <br></br>
@@ -730,7 +738,7 @@ const client = new ApolloClient({
 </Card>
 <br></br>
 <Card style={{ 
-    backgroundColor: '#3a3a3a', 
+    backgroundColor: 'transparent', 
     color: 'white',
     width: "35rem",
     height: ""  }}>

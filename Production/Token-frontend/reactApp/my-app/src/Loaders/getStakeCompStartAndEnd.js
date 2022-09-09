@@ -40,7 +40,7 @@ export const GetStakeCompStartAndEnd = (props) => {
   <>
   <div>
     <Table striped bordeless hover size="sm">
-        <thead>
+        <thead style={{color:'white'}}>
           <tr>
             <td>
               Stake ID
