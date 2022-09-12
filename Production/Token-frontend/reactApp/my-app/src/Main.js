@@ -49,26 +49,26 @@ class Main extends Component {
                 <input
                   type="text"
                   ref={(input) => { this.input = input }}
-                  className="form-control form-control-lg"
+                  className="form-control-lg"
                   placeholder="0"
+                  style={{backgroundColor: 'transparent', width: 440}}
+                  maxlength="10"
                   required />
-                <div className="input-group-append">
-                  <div className="input-group-text">  
-                  <img src={require('./Loaders/HEXagon.png')} style={{width: 20, height: 18}}></img>  &nbsp;Token
-                  </div>
-                </div>
               </div>
-              <div className="input-group-append">
-                  <div className="input-group-text">
-              <label className="float-left"><b>Days</b>&nbsp;</label>
+              <center>
+                  <img src={require('./Loaders/HEXagon.png')} style={{width: 30, height: 26}}></img>  &nbsp;Token
+                  </center>
+                  <br></br>
+              <label className="float-left" style={{backgroundColor:'transparent', borderColor: 'transparent'}}><b>Days</b>&nbsp;</label>
               <input
                   type="text"
                   ref={(input) => { this.day = input }}
                   className="form-control form-control-lg"
                   placeholder="0"
+                  style={{backgroundColor: 'transparent', width: 80, }}
+                  maxlength="4"
                   required />
-              </div>
-              </div>
+       
               <button type="submit" className="btn btn-secondary btn-block btn-lg">STAKE!</button>
             </form>
         </Card.Body>

@@ -6,7 +6,7 @@ import '../TransformLobbyOld/styles.css';
 import moment from 'moment';
 import Web3 from 'web3'
 import {Card} from 'react-bootstrap';
-
+let GLOBAL = require('../globals.js');
 moment().format();
 var daily = [];
 
@@ -34,8 +34,10 @@ let userActivity = {
 };
 
 let earnedHex = new Number;
+//0x5bC8bf5A75D221fF30b2c2B2a7235D6aeEFF4A84
+
 export const GetAccountDailyDataGraph = (props) => {
-  const { error, loading, data } = useQuery(xfAccountDailyData(props.account, props.currentDay));
+  const { error, loading, data } = useQuery(xfAccountDailyData(window.sessionStorage.getItem("account")), '1000');
   var graph = new Array();
   for (var i = 0; i < graph.length; i++) {
     graph[i] = new Array();
@@ -114,16 +116,17 @@ while (i < userActivity.stakeCounter){
   i++;
 }
 i=0;
+console.log(daily)
 //assign values of earned HEX for each day of specific stake, within a two dimmensional array called "graph"
 while (i < userActivity.stakeCounter){
   h = Number(userActivity.endDay[i])
   let debugJ=userActivity.startDay[i]
-
+  console.log(h)
   //make sure not to exceed current day
 
   if (Number(userActivity.endDay[i]) > Number(props.currentDay))
   {
-    h = daily.length - 1
+    h = 1000
   }
   else{
     h = userActivity.endDay[i]
@@ -224,13 +227,20 @@ graph.forEach((item,index)=>{
 
   <div>
 <br></br>
+
+
+
+
 <center>
+<img src={require('./lacyClaireInDesert.png')} style={{width: 900, height: 1000, marginLeft: -530, marginTop: -455, position: 'absolute', zIndex:0}} ></img> 
   <Card style={{ 
     backgroundColor: '#transparent', 
-    opacity: ".55",
-    width: "70rem" }}>
-  <br></br>
-  <center> <h1 style={{color: "black"}}> Total Hex Earned (from Day 1 to Day 1000): <br></br><br></br>{totalEarnedHex}  <img src={require('./HEXagon.png')} style={{width: 55, height: 50}}></img> </h1> 
+    opacity: ".65",
+    width: "45rem",
+    zIndex:1,
+    postion: 'relative' }}>
+<br></br>
+  <center> <h1 style={{color: "black"}}> Total Hex Earned: <br></br> Day 1 - 1000<br></br>{totalEarnedHex}  <img src={require('./HEXagon.png')} style={{width: 55, height: 50}}></img> </h1> 
 <br></br>
 </center>
 

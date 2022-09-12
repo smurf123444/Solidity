@@ -1,6 +1,6 @@
 import React, { Component, useState } from 'react'
 import Web3 from 'web3'
-
+import GLOBAL from './globals.js'
 import { toast } from "react-toastify";
 import GetXfCompEntersAndExit from './Loaders/getXfCompEntersAndExit'
 import GetXfExits from './Loaders/getXfExits'
@@ -27,30 +27,29 @@ import {
 } from "@apollo/client";
 
 import TokenFarm from './assets/TokenFarm.json'
-import CanvasJSReact from './assets/canvasjs.react.js';
-
 
 
 import Main from './Main'
 import Transform from './Transform'
-
-
-
-//import decodeClaim from './Test'
 import { onError } from "@apollo/client/link/error";
 import './App.css'
-
 import PopupStakeEnd from './Loaders/PopupStakeEnd.js'
-//import { ChainId, Token, WETH, Fetcher } from '@uniswap/sdk'
-var CanvasJSChart = CanvasJSReact.CanvasJSChart;
-//var Chart = require('chart.js');
-var bigDecimal = require('js-big-decimal');
 const queryString = require('query-string');
-var BigNumber = require('big-number');
-//require('./hexDecoders.js');
-let JSONarray = []
 
 
+/* const fs = require('fs');
+
+let student = { 
+    name: 'Mike',
+    age: 23, 
+    gender: 'Male',
+    department: 'English',
+    car: 'Honda' 
+};
+ 
+let data = JSON.stringify(student);
+fs.writeFileSync('student-2.json', data);
+ */
 /*
 THIS IS FOR FINDING THE 
 1. XFAMOUNT EARNED.
@@ -148,7 +147,7 @@ class App extends Component {
       currentDay: '0',
       day: '0',
       tokenFarm: {},
-
+      client: 0,
 
       xfLobbyMembers: '0',
       totalSupply: '0',
@@ -172,6 +171,7 @@ class App extends Component {
   async componentWillMount() {
     await this.loadWeb3()
     await this.loadBlockchainData()
+    await this.loadGraph()
     //await this.initiate()
   }
 
@@ -182,10 +182,9 @@ class App extends Component {
 
     const accounts = await web3.eth.getAccounts()
     this.setState({ account: accounts[0] })
- 
+    window.sessionStorage.setItem("account", accounts[0]);
     const tokenFarm = new web3.eth.Contract(TokenFarm, '0x2b591e99afE9f32eAA6214f7B7629768c40Eeb39')
     this.setState({ tokenFarm })
-
 
  // Load State Variables.
       let personalBalance = await tokenFarm.methods.balanceOf(this.state.account).call()
@@ -193,12 +192,10 @@ class App extends Component {
 
       let day = await tokenFarm.methods.currentDay().call()
       this.setState({ currentDay:  day})
-
-
+      window.currentDay = day
       let globals_ = await tokenFarm.methods.globals().call()
       this.setState({ shareRate: globals_.shareRate})
       this.setState({globals: globals_})
-
 
       let yourAddress_ = accounts[0]
       this.setState({ account: yourAddress_.toString()})
@@ -218,7 +215,11 @@ const route = new Route([pair], WETH[DAI.chainId])
 console.log(route.midPrice.toSignificant(6)) // 201.306
 console.log(route.midPrice.invert().toSignificant(6)) // 0.00496756 */
   } 
-
+async loadGraph() {
+/* 
+  this.setState({ client: client})
+ */
+}
   async loadWeb3() {
 
     if (window.ethereum) {
@@ -431,31 +432,32 @@ console.log(route.midPrice.invert().toSignificant(6)) // 0.00496756 */
     return (parseFloat(number).toPrecision(8));
 }
 
-const errorLink = onError(({ graphqlErrors, networkError }) => {
-  if (graphqlErrors) {
-    graphqlErrors.map(({ message, location, path }) => {
-      alert(`Graphql error ${message}`);
-    });
-  }
-});
-
-//https://api.thegraph.com/subgraphs/name/smurf123444/decentralife
-//https://api.thegraph.com/subgraphs/name/codeakk/hex
-const link = from([
-  errorLink,
-  new HttpLink({ uri: "https://api.thegraph.com/subgraphs/name/codeakk/hex"}),
-]);
-
+  const errorLink = onError(({ graphqlErrors, networkError }) => {
+    if (graphqlErrors) {
+      graphqlErrors.map(({ message, location, path }) => {
+        alert(`Graphql error ${message}`);
+      });
+    }
+  });
+  
+  //https://api.thegraph.com/subgraphs/name/smurf123444/decentralife
+  //https://api.thegraph.com/subgraphs/name/codeakk/hex
+  const link = from([
+    errorLink,
+    new HttpLink({ uri: "https://api.thegraph.com/subgraphs/name/codeakk/hex"}),
+  ]);
+  
 const client = new ApolloClient({
-  cache: new InMemoryCache(),
-  link: link,
-});
+    cache: new InMemoryCache(),
+    link: link,
+  });
 
     let content
     if(!this.state.loading) {
       content = <p id="loader" className="text-center">Loading...</p>
     } else {
-      content = <Main
+      content = 
+      <Main
         dappTokenBalance={this.state.dappTokenBalance}
         
         totalSupply={this.state.totalSupply}
@@ -464,6 +466,25 @@ const client = new ApolloClient({
         account={this.state.account}
       />
     }
+
+
+/*     let statsPage
+    if(!this.state.loading) {
+      statsPage = <p id="loader" className="text-center">Loading...</p>
+    } else {
+      statsPage =
+      <ApolloProvider client={client}>
+      <Stats
+        dappTokenBalance={this.state.dappTokenBalance}
+        
+        totalSupply={this.state.totalSupply}
+        currentDay = {this.state.currentDay}
+        account={this.state.account}
+        client={this.state.client}
+      />
+      </ApolloProvider>
+
+    } */
 
     let xfLobbyEnters
     if(!this.state.loading) {
@@ -495,6 +516,7 @@ const client = new ApolloClient({
     } else {
       stakeComp =
       <ApolloProvider client={client}>
+        
         {this.state.showPopup?<PopupStakeEnd  text='X' closePopup={this.togglePopup.bind(this)} func={this.unstakeTokens} stakeIndex={this.state.input1} stakeID={this.state.input2}/>:null}
         <GetStakeCompStartAndEnd account={this.state.account} func={this.getPopup} func2={this.unstakeTokens} />
       </ApolloProvider>
@@ -521,7 +543,7 @@ const client = new ApolloClient({
     }
 
     let dailyDataGraph
-    if(!this.state.loading) {
+    if(!client) {
       dailyDataGraph = <p id="loader" className="text-center">Loading...</p>
     } else {
       dailyDataGraph =
@@ -531,7 +553,7 @@ const client = new ApolloClient({
     }
 
    let accountDailyDataGraph
-    if(!this.state.loading) {
+    if(!client) {
       accountDailyDataGraph = <p id="loader" className="text-center">Loading...</p>
     } else {
       accountDailyDataGraph =
@@ -593,7 +615,8 @@ const client = new ApolloClient({
     </div>
               <Switch>
               <Route path="/stats">
-                <center>
+{/* statsPage*/}
+              <center>
               <Card style={{ 
     backgroundColor: 'white', 
     opacity: ".45",
@@ -614,15 +637,25 @@ const client = new ApolloClient({
   <Card style={{ 
     backgroundColor: '#transparent', 
     opacity: ".45",
-    width: "70rem" }}>
+    width: "40rem",
+    bottom:"-10rem",
+    right: "-28rem", }}>
              <br></br> 
-         <h1 style={{color:'black'}}> Account: {account}</h1>   
+         <h5 style={{color:'black'}}> Account: {account}</h5>   
          <br></br>  
-         <h1 style={{color:'black'}}>  Current&nbsp;<img src={require('./Loaders/HEXagon.png')} style={{width: 45, height: 37}}></img>&nbsp;Balance:   {this.state.dappTokenBalance}</h1>
+         <h2 style={{color:'black'}}>  Current&nbsp;<img src={require('./Loaders/HEXagon.png')} style={{width: 45, height: 37}}></img>&nbsp;Balance:   {this.state.dappTokenBalance}</h2>
            <br></br> 
   </Card>
   </center>
-              {accountDailyDataGraph} 
+  <br></br>
+  <br></br>
+  <br></br>
+  <br></br>
+  <br></br>
+  <br></br>
+  <br></br>
+  <br></br>
+               {accountDailyDataGraph}
              
                 </Route>
           <Route path="/stake">
@@ -647,69 +680,105 @@ const client = new ApolloClient({
           
         </Collapse> */}
             {/* {this.stakeCount} */}
-        
-<br></br>
-<CardColumns >
 
-  <br></br>
-  <img src={require('./Loaders/lacyCLaire.png')} style={{width: 1000, height: 550, marginLeft: 320, marginTop: 70, float:'left'}} ></img> 
+<div className="twerk">
+<CardGroup>
+      <Card style={{
+  backgroundColor: 'transparent',
+  borderColor: 'transparent'
+}}>
 
-  <div className="twerk">
-  <center>
+        <Card.Body>
+        <img src={require('./Loaders/lacyCLaire.png')} style={{width: 1000, height: 550, marginLeft: 230, marginTop: -25 }} ></img> 
+
+        </Card.Body>
+
+      </Card>
+   
+
+ 
+        <center>
   <Card style={{ 
     backgroundColor: 'transparent',
     color: 'white',
     width: "35rem",
     top: "1rem",
     bottom:"20rem",
-    right: "37rem"  }}>
+    borderColor: 'transparent'
+    }}>
         {content} 
+        <small style={{color:'white'}}> Share Rate: &nbsp; </small>
+      <medium> {strip8(shareRate)/10}&nbsp;&nbsp;<img src={require('./Loaders/HEXagon.png')} style={{width: 20, height: 17, marginLeft: 10}}></img>&nbsp; / &nbsp;1 T-SHARE</medium>
         </Card>
     </center>
-
 <br></br>
-    <Card style={{ 
-    backgroundColor: '#3a3a3a', 
-    color: 'white',
-    width: "35rem",
-    height: "",
-    right: "37rem"  }}>
-        <Card.Body >
-          <Card.Text>
-      <small style={{color:'white'}}> Share Rate: &nbsp; </small>
-      <medium> {strip8(shareRate)/10}&nbsp;&nbsp;<img src={require('./Loaders/HEXagon.png')} style={{width: 20, height: 17, marginLeft: 10}}></img>&nbsp; / &nbsp;1 T-SHARE</medium>
-      </Card.Text>
+      <Card style={{
+  backgroundColor: 'transparent',
+  borderColor: 'transparent'
+}}>
 
-    </Card.Body>
+        <Card.Body>
+        <img src={require('./Loaders/lacyClaire2.png')} style={{maskImage: 'linear-gradient(to bottom, rgba(0, 0, 0, 1.0) 50%, transparent 100%)', width: 445, height: 565, marginLeft: -180, marginTop: 70}} ></img> 
+        </Card.Body>
 
-        </Card>
-{/*         <img src={require('./Loaders/HEXagon.png')} style={{width: 55, height: 50}}></img>  */}
+      </Card>
+    </CardGroup>
+
 
   <br></br>
-<center>
+
+
+
+{/*         <img src={require('./Loaders/HEXagon.png')} style={{width: 55, height: 50}}></img>  */}
+<CardGroup>
+ <center>
   <Card style={{ 
     backgroundColor: 'transparent', 
 
     width: "80rem",
-    color: 'white'}}>
+    left: "20rem",
+    color: 'white',
+    zIndex: 1, 
+    position: 'relative'}}>
             <Card.Header as="h5">Stakes Info</Card.Header>
     <Card.Title>Current Stakes</Card.Title>
     <Card.Text>
       New stakes that are not finished or are ready to be claimed.
     </Card.Text>
-    {stakeComp}
+     {stakeComp} 
     <Card.Title>Ended Stakes</Card.Title>
     <Card.Text>
       List of stakes that have ended previously.
     </Card.Text>
-    {stakeEnds}
+     {stakeEnds} 
+ 
+  </Card>  
+  </center>  
+  <Card style={{
+  backgroundColor: 'transparent',
+  borderColor: 'transparent',
 
-  </Card> 
-  </center>
+}}>
+
+        <Card.Body>
+        <img src={require('./Loaders/LacyClaireTheSplits.png')} 
+        style={{
+          maskImage: 'linear-gradient(to bottom, rgba(0, 0, 0, 1.0) 50%, transparent 100%)',
+         width: 445,
+          height: 565, 
+          marginLeft: 170,
+          marginTop: 70,
+          zIndex: 0,
+          position: 'absolute'}} ></img> 
+        </Card.Body>
+
+      </Card>
+      </CardGroup>
+
   </div>
 {/*   <img src={require('./Loaders/HEXagon.png')} style={{width: 55, height: 50}}></img>  */}
   <br></br>
-</CardColumns>
+
             <main role="main" className="col-lg-12 " style={{ maxWidth: '600px' }}>                 
             </main>
             <div className="content mr-auto ml-auto">

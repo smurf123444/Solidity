@@ -44,7 +44,7 @@ export function xfLobbyDailyData(){
 export function xfAccountDailyData(tits, ass){
   const LOAD_XFACCOUNTDAILYDATA = gql`
 {
-  dailyDataUpdates(first: 1000, orderBy: beginDay, orderDirection: asc) {
+  dailyDataUpdates(first: 1000, orderBy: endDay, orderDirection: asc) {
     beginDay
     payoutPerTShare
     endDay

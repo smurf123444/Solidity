@@ -84,6 +84,14 @@ body {
   background-image:url('./Loaders/twerking1.gif');
    background-repeat:repeat;
    height: auto;
+   size: 10000px;
+}
+.lacy2 {
+  background-color: transparent;
+  background-image:url('./Loaders/lacyClaire2.png');
+   background-repeat:repeat;
+   height: auto;
+   size: 10000px;
 }
 
 .App-link {

@@ -6,18 +6,20 @@ import Web3 from 'web3'
 import '../TransformLobbyOld/styles.css';  
 import Popup from '../TransformLobbyOld/PopupXf';
 import moment from 'moment';
+
+
 moment().format();
 function strip4(number) {
   return (parseFloat(number).toPrecision(12));
 }
 export const GetStakeCompStartAndEnd = (props) => {
-  const { error, loading, data } = useQuery(stakeStartAndEndWithAccount(props.account));
+  const { error, loading, data } = useQuery(stakeStartAndEndWithAccount(window.sessionStorage.getItem("account")));
   let ass = []
   let tits = []
   let s = 0
   let uniqueStake=[]
  if(loading){
-   return(<div>Loading...</div>)
+
  }
  else{
   let i = 0;

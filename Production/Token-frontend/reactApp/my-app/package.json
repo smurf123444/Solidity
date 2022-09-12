@@ -31,6 +31,7 @@
     "ejs": "^2.5.6",
     "express": "^4.17.1",
     "express-graphql": "^0.12.0",
+    "fs": "^0.0.1-security",
     "ganache-time-traveler": "^1.0.15",
     "graphql": "^15.4.0",
     "graphql-tag": "^2.11.0",
