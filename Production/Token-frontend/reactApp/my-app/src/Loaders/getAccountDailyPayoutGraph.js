@@ -119,7 +119,7 @@ while(i < starts.length) {
 i = 0;
 //create array of all days
 var another = [];
-
+console.log(daily.length)
 while (i < daily.length)
 {
   another[i] = daily[i++][1];
@@ -139,7 +139,7 @@ while (i < userActivity.stakeCounter){
   i++;
 }
 i=0;
-console.log(daily)
+//console.log(daily)
 //assign values of earned HEX for each day of specific stake, within a two dimmensional array called "graph"
 while (i < userActivity.stakeCounter){
   h = Number(userActivity.endDay[i])
@@ -149,7 +149,7 @@ while (i < userActivity.stakeCounter){
 
   if (Number(userActivity.endDay[i]) > 999)
   {
-    h = props.currentDay - 1
+    h = props.currentDay-1
 
   }
   else{
@@ -270,7 +270,7 @@ graph.forEach((item,index)=>{
     zIndex:1,
     postion: 'relative' }}>
 <br></br>
-  <center> <h1 style={{color: "black"}}> Total Hex Earned: <br></br> Day 1 - 1000<br></br>{totalEarnedHex}  <img src={require('./HEXagon.png')} style={{width: 55, height: 50}}></img> </h1> 
+  <center> <h1 style={{color: "black"}}> Total Hex Earned:<br></br>{totalEarnedHex}  <img src={require('./HEXagon.png')} style={{width: 55, height: 50}}></img> </h1> 
 <br></br>
 </center>
 

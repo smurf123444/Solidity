@@ -22,19 +22,13 @@ export function xfEnterAndExitWithAccount(tits){
   `
   return(LOAD_XFENTERS)
 }
-export function xfLobbyDailyData(){
+export function xfLobbyDailyData(ass){
   const LOAD_XFDAILYDATA = gql`
 {
- dailyDataUpdates(first: 1000, orderBy: beginDay)
-  {
+  dailyDataUpdates(first: 1000, orderBy: endDay, skip: ${ass}, orderDirection: asc) {
     beginDay
     payoutPerTShare
     endDay
-    lobbyEth
-    lobbyHexPerEth
-    lobbyHexAvailable
-    shares
-    payout
   }
   }
   `

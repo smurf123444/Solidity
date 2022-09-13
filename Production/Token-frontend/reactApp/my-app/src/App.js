@@ -620,11 +620,13 @@ const client = new ApolloClient({
        </Nav.Link>
     </Nav>
   </Navbar.Collapse>
+  <iframe src="https://open.spotify.com/embed/track/3tnibOJjAGooqcgDGNlm2E?utm_source=generator&theme=0" width="250" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
 </Navbar>
     </nav>
     </div>
               <Switch>
               <Route path="/stats">
+            
 {/* statsPage*/}
 <div className="twerk">
               <center>
