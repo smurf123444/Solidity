@@ -1,6 +1,5 @@
 import React, { Component, useState } from 'react'
 import Web3 from 'web3'
-import GLOBAL from './globals.js'
 import { toast } from "react-toastify";
 import GetXfCompEntersAndExit from './Loaders/getXfCompEntersAndExit'
 import GetXfExits from './Loaders/getXfExits'
@@ -134,6 +133,7 @@ THIS IS FOR FINDING
 
 
 */
+let hexPrice =0.0
 
 class App extends Component {
   
@@ -148,7 +148,7 @@ class App extends Component {
       day: '0',
       tokenFarm: {},
       client: 0,
-
+      skippedDays: 0,
       xfLobbyMembers: '0',
       totalSupply: '0',
       initSupply: '0',
@@ -176,7 +176,12 @@ class App extends Component {
   }
 
   async loadBlockchainData() {
-
+ 
+    const url = "https://api.coingecko.com/api/v3/simple/price?ids=HEX&vs_currencies=USD";
+    fetch(url)
+    .then( res => hexPrice=res.json() )
+    .then( data => data);
+   // const obj = JSON.parse();
 //0x2e49E2B3FeBf5D64010D65E020729ec4228eC397
     const web3 = window.web3
 
@@ -190,9 +195,14 @@ class App extends Component {
       let personalBalance = await tokenFarm.methods.balanceOf(this.state.account).call()
       this.setState({ dappTokenBalance:  (Web3.utils.fromWei(personalBalance,"gwei") * 10)})
 
+
+  
+
       let day = await tokenFarm.methods.currentDay().call()
       this.setState({ currentDay:  day})
       window.currentDay = day
+      let skippedDays = day - 1000
+      window.sessionStorage.setItem("skippedDays", skippedDays)
       let globals_ = await tokenFarm.methods.globals().call()
       this.setState({ shareRate: globals_.shareRate})
       this.setState({globals: globals_})
@@ -616,6 +626,7 @@ const client = new ApolloClient({
               <Switch>
               <Route path="/stats">
 {/* statsPage*/}
+<div className="twerk">
               <center>
               <Card style={{ 
     backgroundColor: 'white', 
@@ -628,7 +639,8 @@ const client = new ApolloClient({
         
 
            </center>
-        
+           
+{/*      {   console.log(hexPrice.hex)} */}
            </Card>
 
   </center>
@@ -656,7 +668,7 @@ const client = new ApolloClient({
   <br></br>
   <br></br>
                {accountDailyDataGraph}
-             
+               </div>
                 </Route>
           <Route path="/stake">
 {/*           <Button

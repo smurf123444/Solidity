@@ -95,7 +95,13 @@ layout={{
   },
   paper_bgcolor: 'rgba(0,0,0,0)',
   plot_bgcolor: 'rgba(0,0,0,0)',
-  width: 1000, height: 500, title: 'Total Payout Per T-Share'}}
+  width:670, height: 500, title: 'Total Payout Per T-Share',
+  }}
+  style={{
+    marginTop:'1rem',
+    position :'absolute',
+    zIndex:1
+  }}
 /> 
 
 return(

@@ -6,7 +6,7 @@ import '../TransformLobbyOld/styles.css';
 import moment from 'moment';
 import Web3 from 'web3'
 import {Card} from 'react-bootstrap';
-let GLOBAL = require('../globals.js');
+import { isNonEmptyArray } from "@apollo/client/utilities";
 moment().format();
 var daily = [];
 
@@ -32,21 +32,15 @@ let userActivity = {
     tsharesArray: new Number()
   }
 };
-
 let earnedHex = new Number;
 //0x5bC8bf5A75D221fF30b2c2B2a7235D6aeEFF4A84
-
-export const GetAccountDailyDataGraph = (props) => {
-  const { error, loading, data } = useQuery(xfAccountDailyData(window.sessionStorage.getItem("account")), '1000');
-  var graph = new Array();
-  for (var i = 0; i < graph.length; i++) {
-    graph[i] = new Array();
-  }
+const getStuff = (days) => {
+  const { error, loading, data } = useQuery(xfAccountDailyData(window.sessionStorage.getItem("account"), days));
+  i=days;
  if(loading){
    return(<div>Loading...</div>)
  }
  else{
-  
   /*
   THIS IS FOR FINDING
 1. Available HEx for day (Transform)
@@ -76,7 +70,36 @@ export const GetAccountDailyDataGraph = (props) => {
     starts[i] = [data.id, data.stakeId, data.stakedDays, data.stakeTShares, data.startDay,data.endDay, Web3.utils.fromWei(data.stakedHearts,"gwei")]
    i++
    })
+  } 
+  return daily
+}
+export const GetAccountDailyDataGraph = (props) => {
+  const { error, loading, data } = useQuery(xfAccountDailyData(window.sessionStorage.getItem("account"), 0));
+   getStuff(999);
+
+  var graph = new Array();
+  for (var i = 0; i < graph.length; i++) {
+    graph[i] = new Array();
   }
+// const { error, loading2, data2 } = useQuery(xfAccountDailyData(window.sessionStorage.getItem("account"), 999));
+  if(loading){
+    return(<div>Loading...</div>)
+  }
+  else{
+   
+
+   data.dailyDataUpdates.map((data) => {
+     daily[i] = [data.beginDay, data.payoutPerTShare, data.endDay, data.lobbyEth, data.lobbyHexPerEth,data.lobbyHexAvailable, data.shares, data.payout]
+    // console.log(daily[i])
+    i++
+    })
+    i = 0
+    data.stakeStarts.map((data) => {
+     starts[i] = [data.id, data.stakeId, data.stakedDays, data.stakeTShares, data.startDay,data.endDay, Web3.utils.fromWei(data.stakedHearts,"gwei")]
+    i++
+    })
+   }
+  
 
 
   var i;
@@ -121,15 +144,16 @@ console.log(daily)
 while (i < userActivity.stakeCounter){
   h = Number(userActivity.endDay[i])
   let debugJ=userActivity.startDay[i]
-  console.log(h)
+  //console.log(h)
   //make sure not to exceed current day
 
-  if (Number(userActivity.endDay[i]) > Number(props.currentDay))
+  if (Number(userActivity.endDay[i]) > 999)
   {
-    h = 1000
+    h = props.currentDay - 1
+
   }
   else{
-    h = userActivity.endDay[i]
+    h = userActivity.endDay[i] 
   }
   //set t-shares for stake
   r = userActivity.stakedTshares[i]
@@ -141,6 +165,8 @@ while (i < userActivity.stakeCounter){
   }
 i++;
 }
+
+i= 0 ;
 
 
 i = 0;
@@ -181,7 +207,6 @@ graph.forEach((item,index)=>{
   ]}
   layout={
     {
-
       width: 500, 
     height: 500,
      title: 'Stake # ' + ++index + "<br> Stake ID: " + Web3.utils.hexToNumberString(userActivity.id[--index]) +  " <br>Start: DAY " + 
@@ -191,12 +216,14 @@ graph.forEach((item,index)=>{
       + userActivity.stakedHex[index] * 10 + " <br> Hex earned: " 
       +   earnedHex[index++], 
   margin:{
+    autoexpand: true,
     l: 30,
     r:30,
     b: 30,
-    t: 250,
+    t: 250, 
     pad: 1
   },
+  autosize: true,
   paper_bgcolor: 'rgba(0,0,0,0)',
   plot_bgcolor: 'rgba(0,0,0,0)',
     yaxis: {
@@ -210,10 +237,13 @@ graph.forEach((item,index)=>{
       color: 'rgb(255,255,255)'
     },
     xaxis: {
+      
+      range:[userActivity.startDay[index - 1],userActivity.endDay[index - 1]],
       showgrid: false,
       zeroline: false,
       showline: false,
-      showticklabels: true
+      showticklabels: true,
+      
     },
   }}
   config={{responsive: true}}
