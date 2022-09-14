@@ -1,11 +1,7 @@
 import React, { Component } from 'react'
-import dai from './dai.png'
 import './TransformLobbyOld/styles.css'; 
-import PopupXf from './TransformLobbyOld/PopupXf';
 import GetXfCompEntersAndExit from './Loaders/getXfCompEntersAndExit';
 import GetXfExits from './Loaders/getXfExits'
-import TokenFarm from './assets/TokenFarm.json'
-import { toast } from "react-toastify";
 import {
   ApolloClient,
   InMemoryCache,
@@ -14,19 +10,8 @@ import {
   from,
 } from "@apollo/client";
 import { onError } from "@apollo/client/link/error";
-import Web3 from 'web3'
-import { Button, Navbar, Nav, NavDropdown, Image, FormControl, Card, CardColumns, CardGroup, Row, Container, Col, Modal} from 'react-bootstrap';
+import { Card} from 'react-bootstrap';
 class Transform extends Component {
-
-
-/*       enterDay = (value) => {
-        this.state.tokenFarm.methods.xfLobbyEnter(this.state.account).send({ from: this.state.account, value: value}).on('transactionHash', (hash) => {
-          this.setState({ loading: false })
-        })
-      } */
-
-
-
   render() {
     const errorLink = onError(({ graphqlErrors, networkError }) => {
       if (graphqlErrors) {
@@ -196,40 +181,3 @@ class Transform extends Component {
 }
 
 export default Transform;
-/*
-         
-            <form onSubmit={(event) => {
-                event.preventDefault()
-                let tits
-                let tits2
-                tits = this.tits.value.toString()
-                tits2 = this.tits2.value.toString()
-                this.props.unstakeTokens(tits, tits2)
-              }}>
-                <label className="float-centerHead"><b>⚠️Warning⚠️ </b></label>
-                <br/>
-                <label className="float-centerLine"><b>Unstaking early imposes a penalty!</b></label>
-                <br />
-
-                <label className="float-centerLine"><b> Be sure its <bold class="red">DUE</bold> for Exit...</b></label>
-                <label className="float-left"><b>"Index of Stake" within <span>&nbsp;&nbsp;</span>⬇️ <span>&nbsp;&nbsp;</span> StakeList <span>&nbsp;&nbsp;</span>⬇️<span>&nbsp;&nbsp;<b>{"\n"}(Located Below)</b></span></b></label>
-            <input
-                  type="text"
-                  ref={(input) => { this.tits = input }}
-                  className="form-control form-control-lg"
-                  placeholder="0"
-                  required />
-                  <label className="float-left"><b>"Stake ID" within <span>&nbsp;&nbsp;</span>⬇️ <span>&nbsp;&nbsp;</span> StakeList <span>&nbsp;&nbsp;</span>⬇️ <span>&nbsp;&nbsp;<b>{"\n"}(Located Below)</b></span></b></label>
-                    <input
-                  type="text"
-                  ref={(input) => { this.tits2 = input }}
-                  className="form-control form-control-lg"
-                  placeholder="0"
-                  required />
-                              <button
-              type="submit"
-              className="btn btn-primary btn-block btn-lg">
-                UN-STAKE...
-              </button>
-            </form>
-*/

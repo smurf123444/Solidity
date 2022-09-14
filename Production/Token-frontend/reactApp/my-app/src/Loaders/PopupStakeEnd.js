@@ -1,9 +1,6 @@
 import React from 'react';  
 import '../TransformLobbyOld/styles.css';  
-import Web3 from 'web3'
-import TokenFarm from '../assets/TokenFarm.json'
-let web3 = new Web3(new Web3.providers.HttpProvider('https://mainnet.infura.io/v3/' + '885661b2ff2f4167b4c6570a07306408'));
-
+/* eslint-disable jsx-a11y/accessible-emoji */
 class PopupStakeEnd extends React.Component {  
   web3;
 
@@ -29,14 +26,13 @@ class PopupStakeEnd extends React.Component {
   render() {  
 
 
-       let test = ''
        let s = this.props.stakeID
 return (  
 <div className='popup'>  
 <div className='popup_open'>  
 <button onClick={this.props.closePopup}>X</button>  
 
-<center><h1 class="h1_popup">⚠️ Warning ⚠️</h1>  </center>
+<center><h1 class="h1_popup"><span role="img">⚠️</span>xWarning <span>⚠️</span></h1>  </center>
 
 <center><h4 class="h1_popup">-</h4>  </center>
 <center><h4 class="h1_popup">Ending a Stake EARLY or LATE can cause a penalty (up to 100%)</h4>  </center>

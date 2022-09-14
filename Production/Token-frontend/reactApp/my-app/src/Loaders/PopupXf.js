@@ -1,8 +1,5 @@
-import React from 'react';  
-import '../TransformLobbyOld/styles.css';  
-import Web3 from 'web3'
+import React from 'react';   
 import TokenFarm from '../assets/TokenFarm.json'
-let web3 = new Web3(new Web3.providers.HttpProvider('https://mainnet.infura.io/v3/' + '885661b2ff2f4167b4c6570a07306408'));
 
 class PopupXf extends React.Component {  
   web3;
@@ -34,8 +31,6 @@ enterDay = (value) =>{
   }
 
   render() {  
-
-    let test = ''
 return (  
 <div className='popup'>  
 <div className='popup_open'>  

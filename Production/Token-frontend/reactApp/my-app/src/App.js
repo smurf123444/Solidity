@@ -1,21 +1,19 @@
-import React, { Component, useState } from 'react'
+import React, { Component } from 'react'
 import Web3 from 'web3'
 import { toast } from "react-toastify";
-import GetXfCompEntersAndExit from './Loaders/getXfCompEntersAndExit'
+/* import GetXfCompEntersAndExit from './Loaders/getXfCompEntersAndExit'
 import GetXfExits from './Loaders/getXfExits'
-import GetXfLobbyDailyDataList from './Loaders/getXfLobbyDailyDataList'
+import GetXfLobbyDailyDataList from './Loaders/getXfLobbyDailyDataList' */
 import GetAccountDailyDataGraph from './Loaders/getAccountDailyPayoutGraph'
 import GetPayoutDailyDataGraph from './Loaders/getDailyPayoutPerTShareGraph'
 import GetStakeEnd from './Loaders/getStakeEnd'
-import { Button, Navbar, Nav, NavDropdown, Image, FormControl, Card, CardColumns, CardGroup, Row, Container, Col, Modal} from 'react-bootstrap';
+import {  Navbar, Nav, NavDropdown, Card, CardGroup} from 'react-bootstrap';
 import GetStakeCompStartAndEnd from './Loaders/getStakeCompStartAndEnd'
-import Collapse from 'react-bootstrap/Collapse'; 
 import {
   BrowserRouter as Router,
   Switch,
   Route,
   Link,
-  withRouter
 } from "react-router-dom";
 import {
   ApolloClient,
@@ -179,8 +177,8 @@ class App extends Component {
  
     const url = "https://api.coingecko.com/api/v3/simple/price?ids=HEX&vs_currencies=USD";
     fetch(url)
-    .then( res => hexPrice=res.json() )
-    .then( data => data);
+    .then( res => res.json() )
+    .then( data => hexPrice=data);
    // const obj = JSON.parse();
 //0x2e49E2B3FeBf5D64010D65E020729ec4228eC397
     const web3 = window.web3
@@ -435,7 +433,7 @@ async loadGraph() {
 
   render() {
     
-    const { account, currentDay, shareRate, globals,  totalSupply, initSupply, xfLobbyMembers, loading} = this.state;
+    const { account, currentDay, shareRate,  totalSupply} = this.state;
 
 
   function strip8(number) {
@@ -496,7 +494,7 @@ const client = new ApolloClient({
 
     } */
 
-    let xfLobbyEnters
+/*     let xfLobbyEnters
     if(!this.state.loading) {
       xfLobbyEnters = <p id="loader" className="text-center">Loading...</p>
     } else {
@@ -518,7 +516,7 @@ const client = new ApolloClient({
         account={this.state.account}
       />
       </ApolloProvider>
-    }
+    } */
 
     let stakeComp
     if(!this.state.loading) {
@@ -542,7 +540,7 @@ const client = new ApolloClient({
       </ApolloProvider>
     }
   
-    let dailyDataList
+/*     let dailyDataList
     if(!this.state.loading) {
       dailyDataList = <p id="loader" className="text-center">Loading...</p>
     } else {
@@ -550,7 +548,7 @@ const client = new ApolloClient({
       <ApolloProvider client={client}>
         <GetXfLobbyDailyDataList />
       </ApolloProvider>
-    }
+    } */
 
     let dailyDataGraph
     if(!client) {
@@ -597,7 +595,7 @@ const client = new ApolloClient({
         <div>
     <nav>
       <Navbar  bg="dark" variant="dark">
-  <Navbar.Brand href="#home"><img src={require('./Loaders/HEXagon.png')} style={{width: 45, height: 37}}></img>&nbsp;HEX</Navbar.Brand>
+  <Navbar.Brand href="#home"><img src={require('./Loaders/HEXagon.png')} style={{width: 45, height: 37}} alt={""}></img>&nbsp;HEX</Navbar.Brand>
   <Navbar.Toggle aria-controls="basic-navbar-nav" />
   <Navbar.Collapse id="basic-navbar-nav">
     <Nav className="mr-auto">
@@ -620,7 +618,7 @@ const client = new ApolloClient({
        </Nav.Link>
     </Nav>
   </Navbar.Collapse>
-  <iframe src="https://open.spotify.com/embed/track/3tnibOJjAGooqcgDGNlm2E?utm_source=generator&theme=0" width="250" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+  <iframe title="song" src="https://open.spotify.com/embed/track/3bORtU89mmxzrRy32Elv02?utm_source=generator" width="250" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
 </Navbar>
     </nav>
     </div>
@@ -637,7 +635,7 @@ const client = new ApolloClient({
     <center>
             
                   <br></br> 
-                  <h1 style={{color:'black'}}>Total&nbsp;<img src={require('./Loaders/HEXagon.png')} style={{width: 45, height: 37}}></img>&nbsp;Circulating Supply : {Web3.utils.fromWei(totalSupply,"gwei") * 10}</h1>  <br></br> 
+                  <h1 style={{color:'black'}}>Total&nbsp;<img src={require('./Loaders/HEXagon.png')} style={{width: 45, height: 37}} alt={""}></img>&nbsp;Circulating Supply : {Web3.utils.fromWei(totalSupply,"gwei") * 10}</h1>  <br></br> 
         
 
            </center>
@@ -657,7 +655,7 @@ const client = new ApolloClient({
              <br></br> 
          <h5 style={{color:'black'}}> Account: {account}</h5>   
          <br></br>  
-         <h2 style={{color:'black'}}>  Current&nbsp;<img src={require('./Loaders/HEXagon.png')} style={{width: 45, height: 37}}></img>&nbsp;Balance:   {this.state.dappTokenBalance}</h2>
+         <h2 style={{color:'black'}}>  Current&nbsp;<img src={require('./Loaders/HEXagon.png')} style={{width: 45, height: 37}} alt={""}></img>&nbsp;Balance:   {this.state.dappTokenBalance}</h2>
            <br></br> 
   </Card>
   </center>
@@ -703,7 +701,7 @@ const client = new ApolloClient({
 }}>
 
         <Card.Body>
-        <img src={require('./Loaders/lacyCLaire.png')} style={{width: 1000, height: 550, marginLeft: 230, marginTop: -25 }} ></img> 
+        <img src={require('./Loaders/lacyCLaire.png')} style={{width: 1000, height: 550, marginLeft: 230, marginTop: -25 }} alt={""}></img> 
 
         </Card.Body>
 
@@ -722,7 +720,7 @@ const client = new ApolloClient({
     }}>
         {content} 
         <small style={{color:'white'}}> Share Rate: &nbsp; </small>
-      <medium> {strip8(shareRate)/10}&nbsp;&nbsp;<img src={require('./Loaders/HEXagon.png')} style={{width: 20, height: 17, marginLeft: 10}}></img>&nbsp; / &nbsp;1 T-SHARE</medium>
+      <medium> {strip8(shareRate)/10}&nbsp;&nbsp;<img src={require('./Loaders/HEXagon.png')} style={{width: 20, height: 17, marginLeft: 10}} alt={""}></img>&nbsp; / &nbsp;1 T-SHARE</medium>
         </Card>
     </center>
 <br></br>
@@ -732,7 +730,7 @@ const client = new ApolloClient({
 }}>
 
         <Card.Body>
-        <img src={require('./Loaders/lacyClaire2.png')} style={{maskImage: 'linear-gradient(to bottom, rgba(0, 0, 0, 1.0) 50%, transparent 100%)', width: 445, height: 565, marginLeft: -180, marginTop: 70}} ></img> 
+        <img src={require('./Loaders/lacyClaire2.png')} style={{maskImage: 'linear-gradient(to bottom, rgba(0, 0, 0, 1.0) 50%, transparent 100%)', width: 445, height: 565, marginLeft: -180, marginTop: 70}} alt={""} ></img> 
         </Card.Body>
 
       </Card>
@@ -783,7 +781,8 @@ const client = new ApolloClient({
           marginLeft: 170,
           marginTop: 70,
           zIndex: 0,
-          position: 'absolute'}} ></img> 
+          position: 'absolute'}} 
+          alt={""}></img> 
         </Card.Body>
 
       </Card>
@@ -815,7 +814,7 @@ const client = new ApolloClient({
 <br></br>
 <center>
 {/* <Image src="https://i.imgur.com/UoMFVsj.jpg" fluid style={{width: 300, height: 300}}/> */}&nbsp;&nbsp;&nbsp;
-<img src={require('./Loaders/HEXagon.png')} style={{width: 200, height: 200}}></img>
+<img src={require('./Loaders/HEXagon.png')} style={{width: 200, height: 200}} alt={""}></img>
 </center>
 <br></br>
 {/* <center>  <img src={require('./Loaders/HEXagon.png')} style={{width: 200, height: 200}}></img> </center> */}
@@ -860,7 +859,7 @@ const client = new ApolloClient({
                 <span className="float-right text-muted">
                   Balance: {this.state.dappTokenBalance}
                 </span>
-                &nbsp;&nbsp;<img src={require('./Loaders/HEXagon.png')} style={{width: 20, height: 17}}></img> 
+                &nbsp;&nbsp;<img src={require('./Loaders/HEXagon.png')} style={{width: 20, height: 17}} alt={""}></img> 
               </div>
               <div className="input-group mb-4">
                 <input

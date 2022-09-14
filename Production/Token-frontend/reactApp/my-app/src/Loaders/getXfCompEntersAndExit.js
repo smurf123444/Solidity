@@ -1,14 +1,13 @@
-import React, { useEffect, useState, Component  } from "react";
-import { useQuery, gql } from "@apollo/client";
-import { xfEnterAndExitWithAccount, xfExitWithAccount} from "../Querys/Queries";
+import React from "react";
+import { useQuery } from "@apollo/client";
+import { xfEnterAndExitWithAccount} from "../Querys/Querys";
 import Table from 'react-bootstrap/Table';
-import Web3 from 'web3'
 import '../TransformLobbyOld/styles.css';  
-import Popup from './PopupXf';
+//import Popup from './PopupXf';
 import moment from 'moment';
 moment().format();
 export const GetXfCompEntersAndExit = (props) => {
-  const { error, loading, data } = useQuery(xfEnterAndExitWithAccount(props.account));
+  const { loading, data } = useQuery(xfEnterAndExitWithAccount(props.account));
   let ass = []
   let tits = []
  if(loading){
@@ -57,15 +56,6 @@ if(tits[i] === 0)
 }
 else
 {
-  /*
-
-    id
-      timestamp
-      memberAddr
-      data0
-      rawAmount
-      enterDay
-      */
   array[i] = (
     <>
     <tr key={data.id}>

@@ -1,14 +1,13 @@
-import React, { useEffect, useState, Component  } from "react";
-import { useQuery, gql } from "@apollo/client";
-import {  xfExitWithAccount} from "../Querys/Queries";
-import Web3 from 'web3'
+import React from "react";
+import { useQuery } from "@apollo/client";
+import {  xfExitWithAccount} from "../Querys/Querys";
 import Table from 'react-bootstrap/Table';
 import moment from 'moment';
 moment().format();
 
 export const GetXfExits = (props) => {
  // console.log(props)
-  const { error, loading, data } = useQuery(xfExitWithAccount(props.account));
+  const { loading, data } = useQuery(xfExitWithAccount(props.account));
 
  if(loading){
    return(<div>Loading...</div>)

@@ -1,12 +1,11 @@
 import React, {} from "react";
-import { useQuery, gql } from "@apollo/client";
-import {xfAccountDailyData} from "../Querys/Queries";
+import { useQuery } from "@apollo/client";
+import {xfAccountDailyData} from "../Querys/Querys";
 import Plot from 'react-plotly.js';
 import '../TransformLobbyOld/styles.css';  
 import moment from 'moment';
 import Web3 from 'web3'
 import {Card} from 'react-bootstrap';
-import { isNonEmptyArray } from "@apollo/client/utilities";
 moment().format();
 var daily = [];
 
@@ -16,11 +15,11 @@ for (var i = 0; i < daily.length; i++) {
 
 var starts = [];
 
-for (var i = 0; i < starts.length; i++) {
+for (i = 0; i < starts.length; i++) {
   starts[i] = [];
 }
 let userActivity = {
-  id: new Array,
+  id: [],
   startDay: new Number,
   endDay: new Number,
   totalHexEarned: new Number,
@@ -35,7 +34,7 @@ let userActivity = {
 let earnedHex = new Number;
 //0x5bC8bf5A75D221fF30b2c2B2a7235D6aeEFF4A84
 const getStuff = (days) => {
-  const { error, loading, data } = useQuery(xfAccountDailyData(window.sessionStorage.getItem("account"), days));
+  const { loading, data } = useQuery(xfAccountDailyData(window.sessionStorage.getItem("account"), days));
   i=days;
  if(loading){
    return(<div>Loading...</div>)
@@ -64,7 +63,8 @@ const getStuff = (days) => {
     daily[i] = [data.beginDay, data.payoutPerTShare, data.endDay, data.lobbyEth, data.lobbyHexPerEth,data.lobbyHexAvailable, data.shares, data.payout]
    // console.log(daily[i])
    i++
-   })
+   return 0}
+   )
    i = 0
    data.stakeStarts.map((data) => {
     starts[i] = [data.id, data.stakeId, data.stakedDays, data.stakeTShares, data.startDay,data.endDay, Web3.utils.fromWei(data.stakedHearts,"gwei")]
@@ -74,7 +74,7 @@ const getStuff = (days) => {
   return daily
 }
 export const GetAccountDailyDataGraph = (props) => {
-  const { error, loading, data } = useQuery(xfAccountDailyData(window.sessionStorage.getItem("account"), 0));
+  const {  loading, data } = useQuery(xfAccountDailyData(window.sessionStorage.getItem("account"), 0));
    getStuff(999);
 
   var graph = new Array();
@@ -102,7 +102,7 @@ export const GetAccountDailyDataGraph = (props) => {
   
 
 
-  var i;
+
 
 i=0;
 //assign vars to object
@@ -132,7 +132,7 @@ while(i < starts.length)
   i++
 }
 //write out the graph array as empty to initalize
-var j, h , r = 0
+var h 
 i=0;
 while (i < userActivity.stakeCounter){
   graph[i] = []
@@ -143,7 +143,7 @@ i=0;
 //assign values of earned HEX for each day of specific stake, within a two dimmensional array called "graph"
 while (i < userActivity.stakeCounter){
   h = Number(userActivity.endDay[i])
-  let debugJ=userActivity.startDay[i]
+
   //console.log(h)
   //make sure not to exceed current day
 
@@ -156,7 +156,7 @@ while (i < userActivity.stakeCounter){
     h = userActivity.endDay[i] 
   }
   //set t-shares for stake
-  r = userActivity.stakedTshares[i]
+
   for (let j = Number(userActivity.startDay[i]); j < h; j++) {
     //daily tshare payout * amount of tshares held
     graph[i][j] = userActivity.stakedTshares[i] * daily[j][1]
@@ -167,12 +167,12 @@ i++;
 }
 
 i= 0 ;
-
+let n = 0;
 
 i = 0;
 var totalEarnedHex = 0
 //total hex accumulated for EACH stake
-for(var i=0, n=graph.length; i < n; i++) 
+for(i=0, n=graph.length; i < n; i++) 
 { 
   earnedHex[i] = graph[i].reduce(function(pv, cv) { return pv + cv; }, 0);
 
@@ -180,7 +180,7 @@ for(var i=0, n=graph.length; i < n; i++)
 
 
 //Total hex accumulated with ALL stakes. 
-for(var i=0, n=userActivity.stakeCounter; i < n; i++) 
+for(i=0, n=userActivity.stakeCounter; i < n; i++) 
 { 
   totalEarnedHex = Number(earnedHex[i]) + Number(totalEarnedHex)
 
@@ -262,7 +262,7 @@ graph.forEach((item,index)=>{
 
 
 <center>
-<img src={require('./lacyClaireInDesert.png')} style={{width: 900, height: 1000, marginLeft: -530, marginTop: -455, position: 'absolute', zIndex:0}} ></img> 
+<img src={require('./lacyClaireInDesert.png')} style={{width: 900, height: 1000, marginLeft: -530, marginTop: -455, position: 'absolute', zIndex:0}} alt={""}></img> 
   <Card style={{ 
     backgroundColor: '#transparent', 
     opacity: ".65",
@@ -270,7 +270,7 @@ graph.forEach((item,index)=>{
     zIndex:1,
     postion: 'relative' }}>
 <br></br>
-  <center> <h1 style={{color: "black"}}> Total Hex Earned:<br></br>{totalEarnedHex}  <img src={require('./HEXagon.png')} style={{width: 55, height: 50}}></img> </h1> 
+  <center> <h1 style={{color: "black"}}> Total Hex Earned:<br></br>{totalEarnedHex}  <img src={require('./HEXagon.png')} style={{width: 55, height: 50}}  alt={""}></img> </h1> 
 <br></br>
 </center>
 

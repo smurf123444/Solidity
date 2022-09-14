@@ -1,16 +1,15 @@
 import React, {} from "react";
 import Web3 from 'web3'
-import { useQuery, gql } from "@apollo/client";
-import {xfLobbyDailyData} from "../Querys/Queries";
+import { useQuery } from "@apollo/client";
+import {xfLobbyDailyData} from "../Querys/Querys";
 import Table from 'react-bootstrap/Table';
 import '../TransformLobbyOld/styles.css';  
 import moment from 'moment';
 moment().format();
-var BigNumber = require('big-number');
 let tits = []
 let i = 0
 export const GetDailyDataList = (props) => {
-  const { error, loading, data } = useQuery(xfLobbyDailyData());
+  const { loading, data } = useQuery(xfLobbyDailyData());
 
 
  if(loading){
@@ -24,16 +23,6 @@ export const GetDailyDataList = (props) => {
    i++
    })
  }
-
-let s = 0
-let item1 = []
-function strip20(number) {
-  return (parseFloat(number).toPrecision(20));
-}
-function strip12(number) {
-return (parseFloat(number).toPrecision(12));
-}
-let string = (tits[0][0]).toString()
 i = 0
 let array = []
 while (i < tits.length)
@@ -56,10 +45,7 @@ while (i < tits.length)
     </>
    )
 i++
-console.log(i)
 }
- console.log(tits.length)
-s=0
  return(
   <Table striped bordered variant="dark">
     <thead>

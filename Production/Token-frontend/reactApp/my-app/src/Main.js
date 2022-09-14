@@ -1,8 +1,7 @@
-import React, { Component, useState } from 'react'
-import dai from './dai.png'
-import { Button, Navbar, Nav, NavDropdown, Image, FormControl, Card, CardColumns, CardGroup, Row, Container, Col, Modal} from 'react-bootstrap';
+import React, { Component} from 'react'
+
+import { Card, Col} from 'react-bootstrap';
 import './TransformLobbyOld/styles.css'; 
-import Collapse from 'react-bootstrap/Collapse'; 
 
 class Main extends Component {
   
@@ -21,7 +20,7 @@ class Main extends Component {
     
         <Card.Body>
  <center>          <Card.Title style={{color:'black'}}>STAKE HEX</Card.Title>
-          &nbsp;<img src={require('./Loaders/HEXagon.png')} style={{width: 55, height: 45}}></img> 
+          &nbsp;<img src={require('./Loaders/HEXagon.png')} style={{width: 55, height: 45}} alt={""}></img> 
    </center>
 
           <Card.Body tyle={{ width: "30rem", color:'black',backgroundColor: '#transparent'}}>
@@ -30,7 +29,7 @@ class Main extends Component {
                 <span className="float-right text-muted">
                   <br></br>Balance: <br></br>{this.props.dappTokenBalance}
                 </span>
-                &nbsp;<img src={require('./Loaders/HEXagon.png')} style={{width: 18, height: 15}}></img> 
+                &nbsp;<img src={require('./Loaders/HEXagon.png')} style={{width: 18, height: 15}} alt={""}></img> 
                 </div>
                 </Card.Body>
           <Card.Text style={{borderStyle:'none'}}>
@@ -56,7 +55,7 @@ class Main extends Component {
                   required />
               </div>
               <center>
-                  <img src={require('./Loaders/HEXagon.png')} style={{width: 30, height: 26}}></img>  &nbsp;Token
+                  <img src={require('./Loaders/HEXagon.png')} style={{width: 30, height: 26}} alt={""}></img>  &nbsp;Token
                   </center>
                   <br></br>
               <label className="float-left" style={{backgroundColor:'transparent', borderColor: 'transparent'}}><b>Days</b>&nbsp;</label>

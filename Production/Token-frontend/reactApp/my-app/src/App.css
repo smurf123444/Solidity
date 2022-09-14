@@ -81,17 +81,17 @@ body {
 
 .twerk {
   background-color: transparent;
-  background-image:url('./Loaders/twerking1.gif');
+  background-image:url('./Loaders/twerking.gif');
    background-repeat:repeat;
    height: auto;
-   size: 10000px;
+   size: 100000px;
 }
 .lacy2 {
   background-color: transparent;
   background-image:url('./Loaders/lacyClaire2.png');
    background-repeat:repeat;
    height: auto;
-   size: 10000px;
+   size: 10000rem;
 }
 
 .App-link {

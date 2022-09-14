@@ -1,15 +1,13 @@
-import React, { useEffect, useState, Component  } from "react";
-import { useQuery, gql } from "@apollo/client";
-import {  stakeEndWithAccount } from "../Querys/Queries";
+import React from "react";
+import { useQuery } from "@apollo/client";
+import {  stakeEndWithAccount } from "../Querys/Querys";
 import Table from 'react-bootstrap/Table';
 import moment from 'moment';
 var bigDecimal = require('js-big-decimal');
 moment().format();
-function strip4(number) {
-  return (parseFloat(number).toPrecision(4));
-}
+
 export const GetStakeEnd = (props) => {
-  const { error, loading, data } = useQuery(stakeEndWithAccount(props.account));
+  const { loading, data } = useQuery(stakeEndWithAccount(props.account));
  if(loading){
    return(<div>Loading...</div>)
  }

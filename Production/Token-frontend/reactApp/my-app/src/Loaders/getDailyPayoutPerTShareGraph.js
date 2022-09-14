@@ -1,6 +1,6 @@
 import React, {} from "react";
-import { useQuery, gql } from "@apollo/client";
-import {xfLobbyDailyData} from "../Querys/Queries";
+import { useQuery } from "@apollo/client";
+import {xfLobbyDailyData} from "../Querys/Querys";
 import Plot from 'react-plotly.js';
 import '../TransformLobbyOld/styles.css';  
 import moment from 'moment';
@@ -9,7 +9,7 @@ var ass = [];
 let i = 0;
 
 const getStuff = (days) => {
-  const { error, loading, data } = useQuery(xfLobbyDailyData(days));
+  const {loading, data } = useQuery(xfLobbyDailyData(days));
   i=days;
  if(loading){
    return(<div>Loading...</div>)
@@ -23,7 +23,7 @@ const getStuff = (days) => {
   } 
 }
 export const GetPayoutDailyDataGraph = (props) => {
-  const { error, loading, data } = useQuery(xfLobbyDailyData(999));
+  const { loading, data } = useQuery(xfLobbyDailyData(999));
   getStuff(0)
  if(loading){
    return(<div>Loading...</div>)

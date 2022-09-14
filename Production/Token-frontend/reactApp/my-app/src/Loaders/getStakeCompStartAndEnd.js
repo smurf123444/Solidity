@@ -1,10 +1,10 @@
-import React, { useEffect, useState, Component  } from "react";
-import { useQuery, gql } from "@apollo/client";
-import { xfEnterAndExitWithAccount, xfExitWithAccount, stakeStartAndEndWithAccount} from "../Querys/Queries";
+import React from "react";
+import { useQuery } from "@apollo/client";
+import { stakeStartAndEndWithAccount} from "../Querys/Querys";
 import Table from 'react-bootstrap/Table';
-import Web3 from 'web3'
+
 import '../TransformLobbyOld/styles.css';  
-import Popup from '../TransformLobbyOld/PopupXf';
+
 import moment from 'moment';
 
 
@@ -13,10 +13,10 @@ function strip4(number) {
   return (parseFloat(number).toPrecision(12));
 }
 export const GetStakeCompStartAndEnd = (props) => {
-  const { error, loading, data } = useQuery(stakeStartAndEndWithAccount(window.sessionStorage.getItem("account")));
+
+  const { loading, data } = useQuery(stakeStartAndEndWithAccount(window.sessionStorage.getItem("account")));
   let ass = []
   let tits = []
-  let s = 0
   let uniqueStake=[]
  if(loading){
 
@@ -68,16 +68,11 @@ export const GetStakeCompStartAndEnd = (props) => {
           <tr key={data.id}>
             <td>{data.stakeId}</td>
             <td>{Math.trunc(data.stakedHearts / 100000000)}</td>
-    
-    
        <td>{strip4(data.stakeTShares) }</td>
-
-       <td>{data.stakedDays}</td>
-    
+       <td>{data.stakedDays}</td> 
        <td>{data.endDay}</td>
        <td><button onClick={()=> props.func(index,data.stakeId) }> End</button></td>
-        </tr>
-          
+        </tr>    
         ))}
 </tbody>
       </Table>
