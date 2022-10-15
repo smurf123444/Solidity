@@ -476,23 +476,6 @@ const client = new ApolloClient({
     }
 
 
-/*     let statsPage
-    if(!this.state.loading) {
-      statsPage = <p id="loader" className="text-center">Loading...</p>
-    } else {
-      statsPage =
-      <ApolloProvider client={client}>
-      <Stats
-        dappTokenBalance={this.state.dappTokenBalance}
-        
-        totalSupply={this.state.totalSupply}
-        currentDay = {this.state.currentDay}
-        account={this.state.account}
-        client={this.state.client}
-      />
-      </ApolloProvider>
-
-    } */
 
 /*     let xfLobbyEnters
     if(!this.state.loading) {

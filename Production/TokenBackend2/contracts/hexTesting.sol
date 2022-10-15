@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.6.11;
+pragma solidity ^0.6.11;
 
 
-import './MerkleProof.sol';
+import '@openzeppelin/contracts/cryptography/MerkleProof.sol';
 import "./IMerkleDistributor.sol";
 import "hardhat/console.sol";
 contract Context {
@@ -436,10 +436,7 @@ contract ERC20 is Context, IERC20 {
 }
 
 contract Globals is ERC20{
-    event Debug(
-        string debugMessage,
-        uint debugNumber
-    );
+
     /*  XfLobbyEnter      (auto-generated event)
 
         uint40            timestamp       -->  data0 [ 39:  0]
@@ -2135,18 +2132,15 @@ contract Airdrop is  TransformableToken {
         require(g._currentDay >= CLAIM_PHASE_START_DAY, "HEX: Claim phase has not yet started");
         require(g._currentDay < CLAIM_PHASE_END_DAY, "HEX: Claim phase has ended");
 
-    emit Debug(
-        " g._claimedBtcAddrCount : ",
-         g._claimedBtcAddrCount
-    );
+
         /* Check if log data needs to be updated */
         _dailyDataUpdateAuto(g);
-      
+        console.log("_claimedBtcAddrCount : %d ", g._claimedBtcAddrCount);
         /* Sanity check */
-/*         require(
+        require(
             g._claimedBtcAddrCount < CLAIMABLE_BTC_ADDR_COUNT,
             "HEX: CHK: _claimedBtcAddrCount"
-        );  */
+        ); 
  
         (uint256 adjAmount, uint256 claimedHearts, uint256 claimBonusHearts) = _calcClaimValues(
             g,
@@ -2459,12 +2453,12 @@ contract Airdrop is  TransformableToken {
     
     function claim(uint256 index, address account, uint256 amount, bytes32[] calldata merkleProof, address referrerAddr) external returns (uint256) {
         
-        require(!isClaimed(index), "MerkleDistributor: Drop already claimed.");
-        require(account == msg.sender, "MerkleDistributor: Third Party Claim")
+        require(!isClaimed(index), 'MerkleDistributor: Drop already claimed.');
+
         // Verify the merkle proof.
         bytes32 node = keccak256(abi.encodePacked(index, account, amount));
-        require(MerkleProof.verify(merkleProof, merkleRoot, node), "MerkleDistributor: Invalid proof.");
-          //console.log("%s",account);
+        require(MerkleProof.verify(merkleProof, merkleRoot, node), 'MerkleDistributor: Invalid proof.');
+          console.log("%s",account);
         // Mark it claimed and send the token.
         _setClaimed(index);
        // require(IERC20(token).transfer(account, amount), 'MerkleDistributor: Transfer failed.');

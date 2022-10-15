@@ -2109,6 +2109,7 @@ contract Airdrop is  StakeableToken {
         returns (uint256 adjSatoshis, uint256 claimedHearts, uint256 claimBonusHearts)
     {
         /* Apply Silly Whale reduction */
+        console.log(rawSatoshis);
         adjSatoshis = _adjustSillyWhale(rawSatoshis);
         require(
             g._claimedSatoshisTotal + adjSatoshis <= CLAIMABLE_SATOSHIS_TOTAL,

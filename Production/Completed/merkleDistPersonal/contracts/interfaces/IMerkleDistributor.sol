@@ -7,10 +7,10 @@ interface IMerkleDistributor {
     function token() external view returns (address);
     // Returns the merkle root of the merkle tree containing account balances available to claim.
     function merkleRoot() external view returns (bytes32);
-    // Returns the address of the rewards pool contributed to by this contract.
+/*     // Returns the address of the rewards pool contributed to by this contract.
     function rewardsAddress() external view returns (address);
     // Returns the address of the burn pool contributed to by this contract.
-    function burnAddress() external view returns (address);
+    function burnAddress() external view returns (address); */
 
     // Returns true if the index has been marked claimed.
     function isClaimed(uint256 index) external view returns (bool);
