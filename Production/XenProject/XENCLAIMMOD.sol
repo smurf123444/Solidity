@@ -41,9 +41,11 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
         address user;
         uint256 term;
         uint256 maturityTs;
+        uint256 amount;
         uint256 rank;
+        /*
         uint256 amplifier;
-        uint256 eaaRate;
+        uint256 eaaRate; */
     }
 
     // INTERNAL TYPE TO DESCRIBE A XEN STAKE
@@ -64,14 +66,14 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
     uint256 public constant MIN_TERM = 1 * SECONDS_IN_DAY - 1;
     uint256 public constant MAX_TERM_START = 100 * SECONDS_IN_DAY;
     uint256 public constant MAX_TERM_END = 1_000 * SECONDS_IN_DAY;
-    uint256 public constant TERM_AMPLIFIER = 15;
+/*     uint256 public constant TERM_AMPLIFIER = 15;
     uint256 public constant TERM_AMPLIFIER_THRESHOLD = 5_000;
     uint256 public constant REWARD_AMPLIFIER_START = 3_000;
     uint256 public constant REWARD_AMPLIFIER_END = 1;
     uint256 public constant EAA_PM_START = 100;
     uint256 public constant EAA_PM_STEP = 1;
-    uint256 public constant EAA_RANK_STEP = 100_000;
-    uint256 public constant WITHDRAWAL_WINDOW_DAYS = 7;
+    uint256 public constant EAA_RANK_STEP = 100_000; */
+    uint256 public constant WITHDRAWAL_WINDOW_DAYS = 365;
     uint256 public constant MAX_PENALTY_PCT = 99;
 
     uint256 public constant XEN_MIN_STAKE = 0;
@@ -110,14 +112,14 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
      * @dev calculates current MaxTerm based on Global Rank
      *      (if Global Rank crosses over TERM_AMPLIFIER_THRESHOLD)
      */
-    function _calculateMaxTerm() private view returns (uint256) {
+/*     function _calculateMaxTerm() private view returns (uint256) {
         if (globalRank > TERM_AMPLIFIER_THRESHOLD) {
             uint256 delta = globalRank.fromUInt().log_2().mul(TERM_AMPLIFIER.fromUInt()).toUInt();
             uint256 newMax = MAX_TERM_START + delta * SECONDS_IN_DAY;
             return Math.min(newMax, MAX_TERM_END);
         }
         return MAX_TERM_START;
-    }
+    } */
 
     /**
      * @dev calculates Withdrawal Penalty depending on lateness
@@ -137,14 +139,13 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
         uint256 cRank,
         uint256 term,
         uint256 maturityTs,
-        uint256 amplifier,
-        uint256 eeaRate
+        uint256 amount
+/*         uint256 amplifier,
+        uint256 eeaRate */
     ) private view returns (uint256) {
         uint256 secsLate = block.timestamp - maturityTs;
         uint256 penalty = _penalty(secsLate);
-        uint256 rankDelta = Math.max(globalRank - cRank, 2);
-        uint256 EAA = (1_000 + eeaRate);
-        uint256 reward = getGrossReward(rankDelta, amplifier, term, EAA);
+        uint256 reward = amount;//getGrossReward(rankDelta, amplifier, term, EAA);
         return (reward * (100 - penalty)) / 100;
     }
 
@@ -175,24 +176,24 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
     /**
      * @dev calculates Reward Amplifier
      */
-    function _calculateRewardAmplifier() private view returns (uint256) {
+/*     function _calculateRewardAmplifier() private view returns (uint256) {
         uint256 amplifierDecrease = (block.timestamp - genesisTs) / SECONDS_IN_DAY;
         if (amplifierDecrease < REWARD_AMPLIFIER_START) {
             return Math.max(REWARD_AMPLIFIER_START - amplifierDecrease, REWARD_AMPLIFIER_END);
         } else {
             return REWARD_AMPLIFIER_END;
         }
-    }
+    } */
 
     /**
      * @dev calculates Early Adopter Amplifier Rate (in 1/000ths)
      *      actual EAA is (1_000 + EAAR) / 1_000
      */
-    function _calculateEAARate() private view returns (uint256) {
+/*     function _calculateEAARate() private view returns (uint256) {
         uint256 decrease = (EAA_PM_STEP * globalRank) / EAA_RANK_STEP;
         if (decrease > EAA_PM_START) return 0;
         return EAA_PM_START - decrease;
-    }
+    } */
 
     /**
      * @dev calculates APY (in %)
@@ -222,16 +223,16 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
     /**
      * @dev calculates gross Mint Reward
      */
-    function getGrossReward(
+/*    function getGrossReward(
         uint256 rankDelta,
         uint256 amplifier,
         uint256 term,
         uint256 eaa
-    ) public pure returns (uint256) {
+     ) public pure returns (uint256) {
         int128 log128 = rankDelta.fromUInt().log_2();
         int128 reward128 = log128.mul(amplifier.fromUInt()).mul(term.fromUInt()).mul(eaa.fromUInt());
         return reward128.div(uint256(1_000).fromUInt()).toUInt();
-    }
+    } */
 
     /**
      * @dev returns User Mint object associated with User account address
@@ -250,16 +251,16 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
     /**
      * @dev returns current AMP
      */
-    function getCurrentAMP() external view returns (uint256) {
+/*     function getCurrentAMP() external view returns (uint256) {
         return _calculateRewardAmplifier();
-    }
+    } */
 
     /**
      * @dev returns current EAA Rate
      */
-    function getCurrentEAAR() external view returns (uint256) {
+/*     function getCurrentEAAR() external view returns (uint256) {
         return _calculateEAARate();
-    }
+    } */
 
     /**
      * @dev returns current APY
@@ -271,9 +272,9 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
     /**
      * @dev returns current MaxTerm
      */
-    function getCurrentMaxTerm() external view returns (uint256) {
+/*     function getCurrentMaxTerm() external view returns (uint256) {
         return _calculateMaxTerm();
-    }
+    } */
 
 /*     function claimRank(uint256 term) external {
         uint256 termSec = term * SECONDS_IN_DAY;
@@ -300,11 +301,10 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
     /**
      * @dev accepts User cRank claim provided all checks pass (incl. no current claim exists)
      */
-    function claimRank(uint256 index, address account, uint256 amount, bytes32[] calldata merkleProof, uint256 term) external {
-        
+    function claimAmount(uint256 index, address account, uint256 _amount, bytes32[] calldata merkleProof, uint256 term) external {
         uint256 termSec = term * SECONDS_IN_DAY;
-        require(termSec > MIN_TERM, "CRank: Term less than min");
-        require(termSec < _calculateMaxTerm() + 1, "CRank: Term more than current max term");
+/*         require(termSec > MIN_TERM, "CRank: Term less than min");
+        require(termSec < _calculateMaxTerm() + 1, "CRank: Term more than current max term"); */
         require(userMints[_msgSender()].rank == 0, "CRank: Mint already in progress");
         require(!isClaimed(index), "MerkleDistributor: Drop already claimed.");
            // Verify the merkle proof.
@@ -318,13 +318,12 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
             term: term,
             maturityTs: block.timestamp + termSec,
             rank: globalRank,
-            amplifier: _calculateRewardAmplifier(),
-            eaaRate: _calculateEAARate()
+            amount: _amount
         });
         userMints[_msgSender()] = mintInfo;
         activeMinters++;
-        emit RankClaimed(_msgSender(), term, globalRank++);
         emit Claimed(index, account, amount);
+        emit RankClaimed(_msgSender(), term, globalRank++);
     }
 
     /**
@@ -340,8 +339,7 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
             mintInfo.rank,
             mintInfo.term,
             mintInfo.maturityTs,
-            mintInfo.amplifier,
-            mintInfo.eaaRate
+            mintInfo.amount
         ) * 1 ether;
         _mint(_msgSender(), rewardAmount);
 
@@ -366,8 +364,7 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
             mintInfo.rank,
             mintInfo.term,
             mintInfo.maturityTs,
-            mintInfo.amplifier,
-            mintInfo.eaaRate
+            mintInfo.amount
         ) * 1 ether;
         uint256 sharedReward = (rewardAmount * pct) / 100;
         uint256 ownReward = rewardAmount - sharedReward;
@@ -396,8 +393,7 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
             mintInfo.rank,
             mintInfo.term,
             mintInfo.maturityTs,
-            mintInfo.amplifier,
-            mintInfo.eaaRate
+            mintInfo.amount
         ) * 1 ether;
         uint256 stakedReward = (rewardAmount * pct) / 100;
         uint256 ownReward = rewardAmount - stakedReward;

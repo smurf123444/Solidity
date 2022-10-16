@@ -1,0 +1,9 @@
+line 307 changing the "term" stuff to not matter
+line 147 reward amount for claiming is changed to proper place.
+line 46 left the rank in the MintInfo for the rank Require statement in claimAmount function
+line 275, 307 removed _calculateMaxTerm from all functions, for the ability to bypass the need to make a max term when claiming (stupid)..
+line 179, 255 removed _calculateRewardAmplifier from all functions, because its only used when minting for a retarded reward amount for bots...
+line 76 changed WITHDRAWAL_WINDOW_DAYS for penalty to accept a 365 day window instead of just 7 (for new claim)..
+line 192 removed _calculateEAARate() from all functions, because its retarded...
+line 226 removed getGrossReward() function from contract, due to replacement with the amount for a claim instead of random calculation for bots.
+line 69-75 removed all of the Constants relating to claiming repeadetly like a bot retard.
