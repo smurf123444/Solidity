@@ -7,3 +7,4 @@ line 76 changed WITHDRAWAL_WINDOW_DAYS for penalty to accept a 365 day window in
 line 192 removed _calculateEAARate() from all functions, because its retarded...
 line 226 removed getGrossReward() function from contract, due to replacement with the amount for a claim instead of random calculation for bots.
 line 69-75 removed all of the Constants relating to claiming repeadetly like a bot retard.
+line 138 removed "RANK" from contract...(unnessecary)

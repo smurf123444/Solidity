@@ -15,26 +15,6 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
     using ABDKMath64x64 for int128;
     using ABDKMath64x64 for uint256;
 
-
-    mapping(uint256 => uint256) private claimedBitMap;
-    event Claimed(uint256 index, address account, uint256 amount);
-
-
-    function isClaimed(uint256 index) public view returns (bool) {
-        uint256 claimedWordIndex = index / 256;
-        uint256 claimedBitIndex = index % 256;
-        uint256 claimedWord = claimedBitMap[claimedWordIndex];
-        uint256 mask = (1 << claimedBitIndex);
-        return claimedWord & mask == mask;
-    }
-
-    function _setClaimed(uint256 index) private {
-        uint256 claimedWordIndex = index / 256;
-        uint256 claimedBitIndex = index % 256;
-        claimedBitMap[claimedWordIndex] = claimedBitMap[claimedWordIndex] | (1 << claimedBitIndex);
-    }
-    
-
     // INTERNAL TYPE TO DESCRIBE A XEN MINT INFO
     struct MintInfo {
         address user;
@@ -54,7 +34,7 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
     }
 
     // PUBLIC CONSTANTS
-    bytes32 public immutable merkleRoot;
+
     uint256 public constant SECONDS_IN_DAY = 3_600 * 24;
     uint256 public constant DAYS_IN_YEAR = 365;
 
@@ -98,9 +78,8 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
     mapping(address => uint256) public userBurns;
 
     // CONSTRUCTOR
-    constructor(bytes32 merkleRoot_) {
+    constructor() {
         genesisTs = block.timestamp;
-        merkleRoot = merkleRoot_;
     }
 
     // PRIVATE METHODS
@@ -297,33 +276,6 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
         userMints[_msgSender()] = mintInfo;
         activeMinters++;
         emit RankClaimed(_msgSender(), term, globalRank++);
-    }
-
-    function claimRank(uint256 index, address account, uint256 amount, bytes32[] calldata merkleProof, uint256 term) external returns (uint256) {
-        
-        uint256 termSec = term * SECONDS_IN_DAY;
-        require(termSec > MIN_TERM, "CRank: Term less than min");
-        require(termSec < _calculateMaxTerm() + 1, "CRank: Term more than current max term");
-        require(userMints[_msgSender()].rank == 0, "CRank: Mint already in progress");
-        require(!isClaimed(index), "MerkleDistributor: Drop already claimed.");
-           // Verify the merkle proof.
-        bytes32 node = keccak256(abi.encodePacked(index, account, amount));
-        require(MerkleProof.verify(merkleProof, merkleRoot, node), "MerkleDistributor: Invalid proof.");
-        // Mark it claimed.
-        _setClaimed(index);
-        // create and store new MintInfo
-        MintInfo memory mintInfo = MintInfo({
-            user: _msgSender(),
-            term: term,
-            maturityTs: block.timestamp + termSec,
-            rank: globalRank,
-            amplifier: _calculateRewardAmplifier(),
-            eaaRate: _calculateEAARate()
-        });
-        userMints[_msgSender()] = mintInfo;
-        activeMinters++;
-        emit RankClaimed(_msgSender(), term, globalRank++);
-        emit Claimed(index, account, amount);
     }
 
     /**

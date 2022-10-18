@@ -10,6 +10,7 @@ import "./interfaces/IStakingToken.sol";
 import "./interfaces/IRankedMintingToken.sol";
 import "./interfaces/IBurnableToken.sol";
 import "./interfaces/IBurnRedeemable.sol";
+import "./interfaces/IMerkleDistributor.sol"
 
 contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToken, ERC20("LEVIN Crypto", "LEV") {
     using Math for uint256;
@@ -18,7 +19,6 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
 
 
     mapping(uint256 => uint256) private claimedBitMap;
-    event Claimed(uint256 index, address account, uint256 amount);
 
 
     function isClaimed(uint256 index) public view returns (bool) {
@@ -41,9 +41,10 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
         address user;
         uint256 term;
         uint256 maturityTs;
+        bool claimed;
         uint256 amount;
-        uint256 rank;
         /*
+        uint256 rank;
         uint256 amplifier;
         uint256 eaaRate; */
     }
@@ -57,7 +58,7 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
     }
 
     // PUBLIC CONSTANTS
-    bytes32 public immutable merkleRoot;
+ 
     uint256 public constant SECONDS_IN_DAY = 3_600 * 24;
     uint256 public constant DAYS_IN_YEAR = 365;
 
@@ -80,14 +81,14 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
 
     uint256 public constant XEN_MIN_BURN = 0;
 
-    uint256 public constant XEN_APY_START = 20;
-    uint256 public constant XEN_APY_DAYS_STEP = 90;
-    uint256 public constant XEN_APY_END = 2;
+    uint256 public constant XEN_APY_START = 37;
+    uint256 public constant XEN_APY_DAYS_STEP = 365;
+    uint256 public constant XEN_APY_END = 15;
 
     string public constant AUTHORS = "@MrJackLevin @lbelyaev faircrypto.org";
 
     // PUBLIC STATE, READABLE VIA NAMESAKE GETTERS
-
+    bytes32 public immutable merkleRoot;
     uint256 public immutable genesisTs;
     uint256 public globalRank = GENESIS_RANK;
     uint256 public activeMinters;
@@ -107,20 +108,6 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
     }
 
     // PRIVATE METHODS
-
-    /**
-     * @dev calculates current MaxTerm based on Global Rank
-     *      (if Global Rank crosses over TERM_AMPLIFIER_THRESHOLD)
-     */
-/*     function _calculateMaxTerm() private view returns (uint256) {
-        if (globalRank > TERM_AMPLIFIER_THRESHOLD) {
-            uint256 delta = globalRank.fromUInt().log_2().mul(TERM_AMPLIFIER.fromUInt()).toUInt();
-            uint256 newMax = MAX_TERM_START + delta * SECONDS_IN_DAY;
-            return Math.min(newMax, MAX_TERM_END);
-        }
-        return MAX_TERM_START;
-    } */
-
     /**
      * @dev calculates Withdrawal Penalty depending on lateness
      */
@@ -136,7 +123,6 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
      * @dev calculates net Mint Reward (adjusted for Penalty)
      */
     function _calculateMintReward(
-        uint256 cRank,
         uint256 term,
         uint256 maturityTs,
         uint256 amount
@@ -145,7 +131,7 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
     ) private view returns (uint256) {
         uint256 secsLate = block.timestamp - maturityTs;
         uint256 penalty = _penalty(secsLate);
-        uint256 reward = amount;//getGrossReward(rankDelta, amplifier, term, EAA);
+        uint256 reward = amount;
         return (reward * (100 - penalty)) / 100;
     }
 
@@ -174,28 +160,6 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
     }
 
     /**
-     * @dev calculates Reward Amplifier
-     */
-/*     function _calculateRewardAmplifier() private view returns (uint256) {
-        uint256 amplifierDecrease = (block.timestamp - genesisTs) / SECONDS_IN_DAY;
-        if (amplifierDecrease < REWARD_AMPLIFIER_START) {
-            return Math.max(REWARD_AMPLIFIER_START - amplifierDecrease, REWARD_AMPLIFIER_END);
-        } else {
-            return REWARD_AMPLIFIER_END;
-        }
-    } */
-
-    /**
-     * @dev calculates Early Adopter Amplifier Rate (in 1/000ths)
-     *      actual EAA is (1_000 + EAAR) / 1_000
-     */
-/*     function _calculateEAARate() private view returns (uint256) {
-        uint256 decrease = (EAA_PM_STEP * globalRank) / EAA_RANK_STEP;
-        if (decrease > EAA_PM_START) return 0;
-        return EAA_PM_START - decrease;
-    } */
-
-    /**
      * @dev calculates APY (in %)
      */
     function _calculateAPY() private view returns (uint256) {
@@ -220,19 +184,6 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
 
     // PUBLIC CONVENIENCE GETTERS
 
-    /**
-     * @dev calculates gross Mint Reward
-     */
-/*    function getGrossReward(
-        uint256 rankDelta,
-        uint256 amplifier,
-        uint256 term,
-        uint256 eaa
-     ) public pure returns (uint256) {
-        int128 log128 = rankDelta.fromUInt().log_2();
-        int128 reward128 = log128.mul(amplifier.fromUInt()).mul(term.fromUInt()).mul(eaa.fromUInt());
-        return reward128.div(uint256(1_000).fromUInt()).toUInt();
-    } */
 
     /**
      * @dev returns User Mint object associated with User account address
@@ -249,62 +200,19 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
     }
 
     /**
-     * @dev returns current AMP
-     */
-/*     function getCurrentAMP() external view returns (uint256) {
-        return _calculateRewardAmplifier();
-    } */
-
-    /**
-     * @dev returns current EAA Rate
-     */
-/*     function getCurrentEAAR() external view returns (uint256) {
-        return _calculateEAARate();
-    } */
-
-    /**
      * @dev returns current APY
      */
     function getCurrentAPY() external view returns (uint256) {
         return _calculateAPY();
     }
 
-    /**
-     * @dev returns current MaxTerm
-     */
-/*     function getCurrentMaxTerm() external view returns (uint256) {
-        return _calculateMaxTerm();
-    } */
-
-/*     function claimRank(uint256 term) external {
-        uint256 termSec = term * SECONDS_IN_DAY;
-        require(termSec > MIN_TERM, "CRank: Term less than min");
-        require(termSec < _calculateMaxTerm() + 1, "CRank: Term more than current max term");
-        require(userMints[_msgSender()].rank == 0, "CRank: Mint already in progress");
-
-        // create and store new MintInfo
-        MintInfo memory mintInfo = MintInfo({
-            user: _msgSender(),
-            term: term,
-            maturityTs: block.timestamp + termSec,
-            rank: globalRank,
-            amplifier: _calculateRewardAmplifier(),
-            eaaRate: _calculateEAARate()
-        });
-        userMints[_msgSender()] = mintInfo;
-        activeMinters++;
-        emit RankClaimed(_msgSender(), term, globalRank++);
-    } */
-
     // PUBLIC STATE-CHANGING METHODS
 
     /**
      * @dev accepts User cRank claim provided all checks pass (incl. no current claim exists)
      */
-    function claimAmount(uint256 index, address account, uint256 _amount, bytes32[] calldata merkleProof, uint256 term) external {
+    function claim(uint256 index, address account, uint256 _amount, bytes32[] calldata merkleProof, uint256 _term) external {
         uint256 termSec = term * SECONDS_IN_DAY;
-/*         require(termSec > MIN_TERM, "CRank: Term less than min");
-        require(termSec < _calculateMaxTerm() + 1, "CRank: Term more than current max term"); */
         require(userMints[_msgSender()].rank == 0, "CRank: Mint already in progress");
         require(!isClaimed(index), "MerkleDistributor: Drop already claimed.");
            // Verify the merkle proof.
@@ -315,15 +223,14 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
         // create and store new MintInfo
         MintInfo memory mintInfo = MintInfo({
             user: _msgSender(),
-            term: term,
+            term: _term,
             maturityTs: block.timestamp + termSec,
-            rank: globalRank,
+            claimed: true;
             amount: _amount
         });
         userMints[_msgSender()] = mintInfo;
         activeMinters++;
-        emit Claimed(index, account, amount);
-        emit RankClaimed(_msgSender(), term, globalRank++);
+        emit Claimed(index, account, _amount, _term);
     }
 
     /**
@@ -331,12 +238,11 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
      */
     function claimMintReward() external {
         MintInfo memory mintInfo = userMints[_msgSender()];
-        require(mintInfo.rank > 0, "CRank: No mint exists");
+        require(mintInfo.claimed > true, "CRank: No mint exists");
         require(block.timestamp > mintInfo.maturityTs, "CRank: Mint maturity not reached");
 
         // calculate reward and mint tokens
         uint256 rewardAmount = _calculateMintReward(
-            mintInfo.rank,
             mintInfo.term,
             mintInfo.maturityTs,
             mintInfo.amount
@@ -356,12 +262,11 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
         require(other != address(0), "CRank: Cannot share with zero address");
         require(pct > 0, "CRank: Cannot share zero percent");
         require(pct < 101, "CRank: Cannot share 100+ percent");
-        require(mintInfo.rank > 0, "CRank: No mint exists");
+        require(mintInfo.claimed > 0, "CRank: No mint exists");
         require(block.timestamp > mintInfo.maturityTs, "CRank: Mint maturity not reached");
 
         // calculate reward
         uint256 rewardAmount = _calculateMintReward(
-            mintInfo.rank,
             mintInfo.term,
             mintInfo.maturityTs,
             mintInfo.amount
@@ -390,7 +295,6 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
 
         // calculate reward
         uint256 rewardAmount = _calculateMintReward(
-            mintInfo.rank,
             mintInfo.term,
             mintInfo.maturityTs,
             mintInfo.amount
