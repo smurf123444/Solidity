@@ -3,15 +3,14 @@ pragma solidity ^0.8.10;
 
 import './MerkleProof.sol';
 import "./Math.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/interfaces/IERC165.sol";
+import "./ERC20.sol";
+import "./interfaces/IERC165.sol";
 import "abdk-libraries-solidity/ABDKMath64x64.sol";
 import "./interfaces/IStakingToken.sol";
 import "./interfaces/IRankedMintingToken.sol";
 import "./interfaces/IBurnableToken.sol";
 import "./interfaces/IBurnRedeemable.sol";
-import "./interfaces/IMerkleDistributor.sol"
-
+import "./interfaces/IMerkleDistributor.sol";
 contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToken, ERC20("LEVIN Crypto", "LEV") {
     using Math for uint256;
     using ABDKMath64x64 for int128;
@@ -19,7 +18,6 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
 
 
     mapping(uint256 => uint256) private claimedBitMap;
-
 
     function isClaimed(uint256 index) public view returns (bool) {
         uint256 claimedWordIndex = index / 256;
@@ -39,14 +37,8 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
     // INTERNAL TYPE TO DESCRIBE A XEN MINT INFO
     struct MintInfo {
         address user;
-        uint256 term;
-        uint256 maturityTs;
         bool claimed;
         uint256 amount;
-        /*
-        uint256 rank;
-        uint256 amplifier;
-        uint256 eaaRate; */
     }
 
     // INTERNAL TYPE TO DESCRIBE A XEN STAKE
@@ -58,7 +50,7 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
     }
 
     // PUBLIC CONSTANTS
- 
+    event Claimed(uint256 index, address account, uint256 amount);
     uint256 public constant SECONDS_IN_DAY = 3_600 * 24;
     uint256 public constant DAYS_IN_YEAR = 365;
 
@@ -67,13 +59,11 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
     uint256 public constant MIN_TERM = 1 * SECONDS_IN_DAY - 1;
     uint256 public constant MAX_TERM_START = 100 * SECONDS_IN_DAY;
     uint256 public constant MAX_TERM_END = 1_000 * SECONDS_IN_DAY;
-/*     uint256 public constant TERM_AMPLIFIER = 15;
-    uint256 public constant TERM_AMPLIFIER_THRESHOLD = 5_000;
-    uint256 public constant REWARD_AMPLIFIER_START = 3_000;
-    uint256 public constant REWARD_AMPLIFIER_END = 1;
-    uint256 public constant EAA_PM_START = 100;
-    uint256 public constant EAA_PM_STEP = 1;
-    uint256 public constant EAA_RANK_STEP = 100_000; */
+
+    uint256 public constant START_TIME = 1_000 * SECONDS_IN_DAY;
+    uint256 public constant LAUNCH_TIME = 1666456384;
+    //10/22/2022 @ 4:33pm UTC
+
     uint256 public constant WITHDRAWAL_WINDOW_DAYS = 365;
     uint256 public constant MAX_PENALTY_PCT = 99;
 
@@ -84,9 +74,9 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
     uint256 public constant XEN_APY_START = 37;
     uint256 public constant XEN_APY_DAYS_STEP = 365;
     uint256 public constant XEN_APY_END = 15;
-
+/* 
     string public constant AUTHORS = "@MrJackLevin @lbelyaev faircrypto.org";
-
+ */
     // PUBLIC STATE, READABLE VIA NAMESAKE GETTERS
     bytes32 public immutable merkleRoot;
     uint256 public immutable genesisTs;
@@ -123,13 +113,9 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
      * @dev calculates net Mint Reward (adjusted for Penalty)
      */
     function _calculateMintReward(
-        uint256 term,
-        uint256 maturityTs,
         uint256 amount
-/*         uint256 amplifier,
-        uint256 eeaRate */
     ) private view returns (uint256) {
-        uint256 secsLate = block.timestamp - maturityTs;
+        uint256 secsLate = block.timestamp - START_TIME;
         uint256 penalty = _penalty(secsLate);
         uint256 reward = amount;
         return (reward * (100 - penalty)) / 100;
@@ -211,26 +197,23 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
     /**
      * @dev accepts User cRank claim provided all checks pass (incl. no current claim exists)
      */
-    function claim(uint256 index, address account, uint256 _amount, bytes32[] calldata merkleProof, uint256 _term) external {
-        uint256 termSec = term * SECONDS_IN_DAY;
-        require(userMints[_msgSender()].rank == 0, "CRank: Mint already in progress");
+    function claim(uint256 index, address account, uint256 _amount, bytes32[] calldata merkleProof) external {
+
         require(!isClaimed(index), "MerkleDistributor: Drop already claimed.");
            // Verify the merkle proof.
-        bytes32 node = keccak256(abi.encodePacked(index, account, amount));
+        bytes32 node = keccak256(abi.encodePacked(index, account, _amount));
         require(MerkleProof.verify(merkleProof, merkleRoot, node), "MerkleDistributor: Invalid proof.");
         // Mark it claimed.
         _setClaimed(index);
         // create and store new MintInfo
         MintInfo memory mintInfo = MintInfo({
             user: _msgSender(),
-            term: _term,
-            maturityTs: block.timestamp + termSec,
-            claimed: true;
+            claimed: true,
             amount: _amount
         });
         userMints[_msgSender()] = mintInfo;
         activeMinters++;
-        emit Claimed(index, account, _amount, _term);
+        emit Claimed(index, account, _amount);
     }
 
     /**
@@ -238,13 +221,10 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
      */
     function claimMintReward() external {
         MintInfo memory mintInfo = userMints[_msgSender()];
-        require(mintInfo.claimed > true, "CRank: No mint exists");
-        require(block.timestamp > mintInfo.maturityTs, "CRank: Mint maturity not reached");
+        require(mintInfo.claimed == true, "CRank: No mint exists");
 
         // calculate reward and mint tokens
         uint256 rewardAmount = _calculateMintReward(
-            mintInfo.term,
-            mintInfo.maturityTs,
             mintInfo.amount
         ) * 1 ether;
         _mint(_msgSender(), rewardAmount);
@@ -262,13 +242,11 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
         require(other != address(0), "CRank: Cannot share with zero address");
         require(pct > 0, "CRank: Cannot share zero percent");
         require(pct < 101, "CRank: Cannot share 100+ percent");
-        require(mintInfo.claimed > 0, "CRank: No mint exists");
-        require(block.timestamp > mintInfo.maturityTs, "CRank: Mint maturity not reached");
+        require(mintInfo.claimed == true, "CRank: No mint exists");
+        require(block.timestamp > START_TIME, "CRank: Mint maturity not reached");
 
         // calculate reward
         uint256 rewardAmount = _calculateMintReward(
-            mintInfo.term,
-            mintInfo.maturityTs,
             mintInfo.amount
         ) * 1 ether;
         uint256 sharedReward = (rewardAmount * pct) / 100;
@@ -290,13 +268,11 @@ contract XENCrypto is Context, IRankedMintingToken, IStakingToken, IBurnableToke
         MintInfo memory mintInfo = userMints[_msgSender()];
         // require(pct > 0, "CRank: Cannot share zero percent");
         require(pct < 101, "CRank: Cannot share >100 percent");
-        require(mintInfo.rank > 0, "CRank: No mint exists");
-        require(block.timestamp > mintInfo.maturityTs, "CRank: Mint maturity not reached");
+        require(mintInfo.claimed == true, "CRank: No mint exists");
+        require(block.timestamp > START_TIME, "CRank: Mint maturity not reached");
 
         // calculate reward
         uint256 rewardAmount = _calculateMintReward(
-            mintInfo.term,
-            mintInfo.maturityTs,
             mintInfo.amount
         ) * 1 ether;
         uint256 stakedReward = (rewardAmount * pct) / 100;

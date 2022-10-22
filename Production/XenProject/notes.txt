@@ -8,3 +8,5 @@ line 192 removed _calculateEAARate() from all functions, because its retarded...
 line 226 removed getGrossReward() function from contract, due to replacement with the amount for a claim instead of random calculation for bots.
 line 69-75 removed all of the Constants relating to claiming repeadetly like a bot retard.
 line 138 removed "RANK" from contract...(unnessecary)
+line 124, 41  removed term from calculateMintReward() function and mintInfo structure. no need to give more money.
+line 40 removed maturityTs from contract, highly unnessecary for Mint due to precaculated amount based on pulsechain sac.
